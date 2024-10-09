@@ -10,10 +10,10 @@
  * Address	Length	Description
  * --------------------------------------------------------------
  * 0				1				working mode (value: 1==auto, 0==manual, 2: NaN)
- * 1				4				Celsius: Threshold turn on the Air Conditional's Compressor
- * 5				4				Celsius: Threshold turn off the Air Conditional's Compressor
- * 9				4				Celsius: temperature. i.e.: 0550 -> 05.50
- * 13				4				percent: humidity. i.e.: 1650 -> 16.50
+ * 1				2				Celsius: Threshold turn on the Air Conditional's Compressor
+ * 3				2				Celsius: Threshold turn off the Air Conditional's Compressor
+ * 5				2				Celsius: temperature. i.e.: 05 -> 05
+ * 7				2				percent: humidity. i.e.: 16 -> 16
  */
  
 void DA_SetValue(unsigned char *pointer, int addr)
@@ -25,36 +25,38 @@ void DA_SetValue(unsigned char *pointer, int addr)
   }
 }
 
-//void DA_GetHumidity(unsigned char *pointer)
-//{
-//	int addr = 13;
-//	int i = 0;
-//	for (i = 0; i < 4; i++)
-//	{
-//		*pointer = EepromReadByte(addr, 0);
-//		addr++;
-//		*pointer++;
-//	}
-//}
-void DA_SetHumidity(unsigned char *pointer)
+void DA_GetHumidity(unsigned char *pointer)
 {
-	DA_SetValue(pointer, 13);
+	int addr = 7;
+	int i = 0;
+	for (i = 0; i < 4; i++)
+	{
+		*pointer = EepromReadByte(addr, 0);
+		addr++;
+		*pointer++;
+	}
 }
 
-//void DA_GetTemperature(unsigned char *pointer)
-//{
-//	int addr = 9;
-//	int i = 0;
-//	for (i = 0; i < 4; i++)
-//	{
-//		*pointer = EepromReadByte(addr, 0);
-//		addr++;
-//		*pointer++;
-//	}
-//}
+void DA_SetHumidity(unsigned char *pointer)
+{
+	DA_SetValue(pointer, 7);
+}
+
+void DA_GetTemperature(unsigned char *pointer)
+{
+	int addr = 5;
+	int i = 0;
+	for (i = 0; i < 4; i++)
+	{
+		*pointer = EepromReadByte(addr, 0);
+		addr++;
+		*pointer++;
+	}
+}
+
 void DA_SetTemperature(unsigned char *pointer)
 {
-	DA_SetValue(pointer, 9);
+	DA_SetValue(pointer, 5);
 }
 
 
@@ -64,7 +66,7 @@ Example data: 017 --> 01.7 Celsius (length == 4)
 */
 void DA_GetDevice1TurnOffAt(unsigned char *pointer)
 {
-	int addr = 4;
+	int addr = 3;
 	int i = 0;
 	for (i = 0; i < 4; i++)
 	{
@@ -76,7 +78,7 @@ void DA_GetDevice1TurnOffAt(unsigned char *pointer)
 
 void DA_SetDevice1TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
 {
-	DA_SetValue(pointer, 4);
+	DA_SetValue(pointer, 3);
 }
 
 /*
