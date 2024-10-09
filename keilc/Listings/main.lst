@@ -1,0 +1,390 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) T
+                    -ABS(2)
+
+line level    source
+
+   1          //#include <stdio.h>
+   2          #include <string.h>
+   3          
+   4          #include <reg51.h> 
+   5          //#include <REGX51.H>
+   6          
+   7          #include "delay.h"
+   8          #include "I2C.h"
+   9          #include "eeprom.h"
+*** WARNING C209 IN LINE 27 OF eeprom.h: '_Delay_us': too few actual parameters
+  10          #include "UART.h"
+  11          #include "DataAccess.h"
+*** WARNING C275 IN LINE 73 OF DataAccess.h: expression with possibly no effect
+*** WARNING C275 IN LINE 94 OF DataAccess.h: expression with possibly no effect
+  12          #include "LCD8bit.h"
+  13          
+  14          // Control:
+  15          unsigned char cfg_working_mode;
+  16          unsigned char config_dev1_threshold_on[4], cfg_dvc1_threshold_on[4];
+  17          unsigned char *ptr_config_dev1_threshold_on = &config_dev1_threshold_on;
+  18          unsigned char *ptr_cfg_dvc1_threshold_on = &cfg_dvc1_threshold_on;
+  19          //unsigned char cfg_4c[4]; // length == 4
+  20          //unsigned char *ptr_cfg_4c = &cfg_4c;
+  21          
+  22          
+  23          // UART configuration:
+  24          char uart_rx_str[16];
+  25          char *ptr_uart_rx_str = &uart_rx_str;
+  26          int uart_rx_str_size = 0;
+  27          // LCD:
+  28          unsigned char arr_char_lcd[16];
+  29          char *ptr_arr_char_lcd = &arr_char_lcd;
+  30          // Others:
+  31          int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
+  32          
+  33          
+  34          void set_sample_data()
+  35          {
+  36   1        // test set temperature
+  37   1        //clearLine(1);
+  38   1        //displayText("sample data: ");
+  39   1        DA_SetDevice1TurnOnAt("017"); // 01.7 Celsius
+  40   1        DA_SetDevice1TurnOffAt("050"); // 05.0 Celsius
+  41   1        DA_SetHumidity("0400");
+  42   1        DA_SetHumidity("2500");
+  43   1        //displayText("ok");
+  44   1        //Delay_ms(ms2);
+  45   1        //clearLine(1);
+  46   1      }
+  47          
+  48          void init(void)
+  49          {
+  50   1        // LCD
+  51   1        initLCD();
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 2   
+
+  52   1        
+  53   1        // Welcome
+  54   1        setCursor(0, 0);
+  55   1        displayText("Starting...");
+  56   1        
+  57   1        // Data Access
+  58   1        setCursor(0, 1);
+  59   1        displayText("Data: ");
+  60   1        DA_Init();
+  61   1        displayText("ok");
+  62   1        
+  63   1        Delay_ms(ms2);
+  64   1        clearLine(1);
+  65   1        
+  66   1        // sample data for testing
+  67   1        set_sample_data();
+  68   1        
+  69   1        displayText("Mode: ");
+  70   1        cfg_working_mode = DA_GetWorkingMode();
+  71   1        switch(cfg_working_mode)
+  72   1        {
+  73   2          case '1':
+  74   2            displayText("auto");
+  75   2            break;
+  76   2          case '0':
+  77   2            displayText("manual");
+  78   2            break;
+  79   2          default:
+  80   2            displayChar(cfg_working_mode);
+  81   2            Delay_ms(8);
+  82   2            displayText("NaN");
+  83   2            break;
+  84   2        }
+  85   1        
+  86   1        Delay_ms(ms2);
+  87   1        clearLine(1);
+  88   1        
+  89   1        // UART
+  90   1        displayText("UART: ");
+  91   1        UART_Init();
+  92   1        UART_TxString("hello uart 8051");
+  93   1        displayText("hello!");
+  94   1        
+  95   1        Delay_ms(ms2 * 2);
+  96   1      }
+  97          
+  98          /*
+  99          void loop_test()
+ 100          {
+ 101            clearLine(0);
+ 102            setCursor(0, 0);
+ 103            displayText("   uart tx...   ");
+ 104              
+ 105            UART_Init();
+ 106            UART_TxString("hello");
+ 107            clearLine(1);
+ 108            setCursor(0, 1);
+ 109            displayText(" sent");
+ 110            Delay_ms(250);
+ 111            
+ 112            clearLine(0);
+ 113            setCursor(0, 0);
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 3   
+
+ 114            displayText("   uart rx...   ");
+ 115            
+ 116            //UART_Init();
+ 117            while(1)
+ 118            {
+ 119              clearLine(1);
+ 120              setCursor(0, 1);
+ 121              
+ 122              UART_Init();
+ 123              uart_rx_str_size = UART_RXString(ptr_uart_rx_str);
+ 124              displayChar(uart_rx_str_size);
+ 125              displayText(ptr_arr_char_lcd);
+ 126              Delay_ms(250);
+ 127              clearLine(1);
+ 128              setCursor(0, 1);
+ 129              displayText(ptr_uart_rx_str);
+ 130              Delay_ms(700);
+ 131              
+ 132            
+ 133              if (uart_rx_str_size > 0)
+ 134              {
+ 135                break;
+ 136              }
+ 137            }
+ 138            
+ 139            //Delay_ms(2000);
+ 140            initLCD();
+ 141            setCursor(0, 0);
+ 142            displayText("    Finished    ");
+ 143            Delay_ms(500);
+ 144          }
+ 145          */
+ 146          
+ 147          /*
+ 148          Flow:
+ 149            - 1. Refresh DHT11 sensor's data to eeprom
+ 150            - 2. Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
+ 151            - 3. Control devices base on eeprom data
+ 152            - 4. UART-RX and proceed command if data is available
+ 153          */
+ 154          void loop(void)
+ 155          {
+ 156   1        // 1.1 Read DHT11 sensor
+ 157   1        // 1.2 Update/Write DHT11's data to eeprom
+ 158   1        // 2.1 Read temperature/humidity
+ 159   1        // 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
+ 160   1        
+ 161   1        // 3.1 Read data configuration to control devices
+ 162   1        // cooling fan:
+ 163   1        DA_GetDevice1TurnOnAt(ptr_config_dev1_threshold_on);
+ 164   1        DA_GetDevice1TurnOffAt(ptr_cfg_dvc1_threshold_on);
+ 165   1        
+ 166   1        // Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
+ 167   1        
+ 168   1        
+ 169   1        // 4.1 UART-RX and proceed command if data is available
+ 170   1        UART_Init();
+ 171   1        uart_rx_str_size = UART_RXString(ptr_uart_rx_str);
+ 172   1        if (uart_rx_str_size > 0)
+ 173   1        {
+ 174   2          char cmd[4];
+ 175   2          for (i = 0; i < 4; i++)
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 4   
+
+ 176   2          {
+ 177   3            cmd[i] = uart_rx_str[i];
+ 178   3          }
+ 179   2          
+ 180   2          clearLine(0);
+ 181   2          displayText("UART-RX:");
+ 182   2          clearLine(1);
+ 183   2          displayText(ptr_uart_rx_str);
+ 184   2          
+ 185   2          if (strcmp(cmd, "001:") == 0)
+ 186   2          {
+ 187   3            // 001: set working mode
+ 188   3            
+ 189   3            // update to eeprom
+ 190   3            cfg_working_mode = uart_rx_str[4];
+ 191   3            DA_SetWorkingMode(cfg_working_mode); // save to eeprom
+ 192   3            cfg_working_mode = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
+ 193   3            
+ 194   3            // generate response
+ 195   3            strncat(ptr_uart_rx_str, "001:", 0); // response
+ 196   3            strncat(ptr_uart_rx_str, &cfg_working_mode, 4);
+ 197   3            strncat(ptr_uart_rx_str, "/", 5);
+ 198   3            
+ 199   3            // send reponse to confirm
+ 200   3            UART_Init();
+ 201   3            UART_TxStr(ptr_uart_rx_str, 6);
+ 202   3            
+ 203   3            //Delay_ms(ms2);
+ 204   3            //clearLine(1);
+ 205   3            //displayText("sent: 001:");
+ 206   3            //displayText(ptr_uart_rx_str);
+ 207   3            //Delay_ms(ms2);
+ 208   3          }
+ 209   2          else if (strcmp(cmd, "002:") == 0)
+ 210   2          {
+ 211   3            // 002: get working mode
+ 212   3            cfg_working_mode = DA_GetWorkingMode();
+ 213   3            
+ 214   3            // generate response
+ 215   3            strncat(ptr_uart_rx_str, "002:", 0); // response
+ 216   3            strncat(ptr_uart_rx_str, &cfg_working_mode, 4);
+ 217   3            strncat(ptr_uart_rx_str, "/", 5);
+ 218   3            
+ 219   3            // send current working mode to uart
+ 220   3            UART_Init();
+ 221   3            UART_TxStr(ptr_uart_rx_str, 6);
+ 222   3          }
+ 223   2          
+ 224   2          Delay_ms(ms0);
+ 225   2          //clearLine(1);
+ 226   2        }
+ 227   1        
+ 228   1        Delay_ms(ms0);
+ 229   1      }
+ 230          
+ 231          void main(void)
+ 232          {
+ 233   1        init();
+ 234   1        while(1)
+ 235   1        {
+ 236   2          loop(); 
+ 237   2        }
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 5   
+
+ 238   1        
+ 239   1        //setCursor(0, 1);
+ 240   1        //displayText(*config_dev1_threshold_on);
+ 241   1        
+ 242   1        // -----------------------------------
+ 243   1        /*
+ 244   1        //EepromEraseAll();
+ 245   1        //load_sample_data();
+ 246   1        
+ 247   1        char sName [] = "Circuits Today";
+ 248   1        char mode = '1';
+ 249   1        char * temparature = "26.5";
+ 250   1        char * humity = "14.4";
+ 251   1        
+ 252   1        char mem_mode = "2";
+ 253   1        char * ptr_mem_temparature;
+ 254   1        
+ 255   1        EepromEraseAll();
+ 256   1        
+ 257   1        // write mode
+ 258   1        EepromWriteByte(mode, 0, 0);
+ 259   1        // write temparature
+ 260   1        EepromWriteNBytes(0x01, temparature, sizeof(temparature), 0);
+ 261   1        // write humity
+ 262   1        EepromWriteNBytes(0x10, humity, sizeof(humity), 0);
+ 263   1        
+ 264   1        mem_mode = EepromReadByte(0x00, 0);
+ 265   1        ///char memmode = EepromReadByte(0, 0);
+ 266   1        ///char * ptr_mem_temparature = "00.0"; 
+ 267   1        
+ 268   1        initLCD();
+ 269   1        
+ 270   1        ///char mem_mode = EepromReadByte(0, 0);
+ 271   1        ///char memmode = EepromReadByte(0, 0);
+ 272   1        //char * ptr_mem_temparature = "00.0"; 
+ 273   1        EepromReadNBytes(0x01, ptr_mem_temparature, sizeof(temparature), 0);
+ 274   1        
+ 275   1        setCursor(0, 0);
+ 276   1        displayChar(mem_mode);
+ 277   1        if (mem_mode == '1')
+ 278   1          displayText("a");
+ 279   1        else
+ 280   1          displayText("b");
+ 281   1        Delay_ms(2000);
+ 282   1        displayText(ptr_mem_temparature);
+ 283   1        Delay_ms(2000);
+ 284   1        
+ 285   1        setCursor(0, 1);
+ 286   1        displayChar(EepromReadByte(0x01, 0));
+ 287   1        displayText(" done.");
+ 288   1        Delay_ms(2000);
+ 289   1        
+ 290   1        while(1);
+ 291   1        
+ 292   1        //setCursor(0, 0);
+ 293   1        //Delay_ms(2000);
+ 294   1        
+ 295   1        ////- -----------------------------------------
+ 296   1        
+ 297   1        
+ 298   1        setCursor(0, 0);
+ 299   1        displayText("EEPROM 24C02.."); // initial display on LCD
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 6   
+
+ 300   1        
+ 301   1        
+ 302   1        for(i =0; i<14; i++)
+ 303   1          EepromWriteByte(sName[i], i, 0);
+ 304   1        
+ 305   1        setCursor(0, 1);
+ 306   1        for(i =0; i<14; i++)
+ 307   1        {
+ 308   1          char s = EepromReadByte(i,0);
+ 309   1      
+ 310   1      //    if (s == sName[i])
+ 311   1      //    {
+ 312   1      //      displayChar("'");
+ 313   1      //    }
+ 314   1      //    else
+ 315   1      //    {
+ 316   1      //      displayChar("-");
+ 317   1      //    }
+ 318   1          
+ 319   1          displayChar(s);
+ 320   1          Delay_ms(500);
+ 321   1        }
+ 322   1        
+ 323   1        setCursor(0, 1);
+ 324   1        displayText("Done");
+ 325   1        */
+ 326   1        // --------------------------------------------------------
+ 327   1        
+ 328   1        /*
+ 329   1        initLCD();
+ 330   1        setCursor(0, 0);
+ 331   1        displayText("EEPROM 24C02..");
+ 332   1        
+ 333   1        //unsigned char data[12];
+ 334   1        ser_init();
+ 335   1        i2c_send_string(0x00,"EmbeTronicX");
+ 336   1        
+ 337   1        setCursor(0, 1);
+ 338   1        displayText("sent");
+ 339   1        
+ 340   1        Delay_ms(2000);
+ 341   1        
+ 342   1        setCursor(0, 0);
+ 343   1        displayChar(i2c_read_string(0x00));
+ 344   1        
+ 345   1        Delay_ms(3000);
+ 346   1        
+ 347   1        tx_str(rec);
+ 348   1        setCursor(0, 1);
+ 349   1        displayText("Done.");
+ 350   1        */
+ 351   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1745    ----
+   CONSTANT SIZE    =    114    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     63      60
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.60.7.0   MAIN                                                              10/09/2024 15:49:35 PAGE 7   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)
