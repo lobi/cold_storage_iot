@@ -64,6 +64,7 @@
     "*.css.liquid": "liquid-css",
     "*.scss.liquid": "liquid-scss",
     "delay.h": "c",
-    "dataaccess.h": "c"
+    "dataaccess.h": "c",
+    "dht11.h": "c"
   }
 }

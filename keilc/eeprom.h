@@ -34,7 +34,7 @@ void EepromWriteNBytes(unsigned char Location, unsigned char *Pointer, char N, u
 {
 	while(N !=  0)
 	{
-		EepromWriteByte(Location, *Pointer, Page);
+		EepromWriteByte(*Pointer, Location, Page);
 		Location++; Pointer++; N--;		
 	}
 }

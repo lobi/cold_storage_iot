@@ -1,18 +1,20 @@
-//#include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <reg51.h> 
 //#include <REGX51.H>
-
+#include "utils.h"
 #include "delay.h"
 #include "I2C.h"
 #include "eeprom.h"
 #include "UART.h"
 #include "DataAccess.h"
 #include "LCD8bit.h"
+#include "dht11.h"
 
 // Control:
 unsigned char cfg_working_mode;
+unsigned char temperature[2], humidity[2];
 unsigned char config_dev1_threshold_on[4], cfg_dvc1_threshold_on[4];
 unsigned char *ptr_config_dev1_threshold_on = &config_dev1_threshold_on;
 unsigned char *ptr_cfg_dvc1_threshold_on = &cfg_dvc1_threshold_on;
@@ -25,8 +27,8 @@ char uart_rx_str[16];
 char *ptr_uart_rx_str = &uart_rx_str;
 int uart_rx_str_size = 0;
 // LCD:
-unsigned char arr_char_lcd[16];
-char *ptr_arr_char_lcd = &arr_char_lcd;
+//unsigned char arr_char_lcd[16];
+//char *ptr_arr_char_lcd = &arr_char_lcd;
 // Others:
 int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
 
@@ -36,10 +38,10 @@ void set_sample_data()
 	// test set temperature
 	//clearLine(1);
 	//displayText("sample data: ");
-	DA_SetDevice1TurnOnAt("017"); // 01.7 Celsius
-	DA_SetDevice1TurnOffAt("050"); // 05.0 Celsius
-	DA_SetHumidity("0400");
-	DA_SetHumidity("2500");
+	DA_SetDevice1TurnOnAt("06");
+	DA_SetDevice1TurnOffAt("01");
+	DA_SetTemperature("05");
+	DA_SetHumidity("35");
 	//displayText("ok");
 	//Delay_ms(ms2);
 	//clearLine(1);
@@ -57,6 +59,7 @@ void init(void)
 	// Data Access
 	setCursor(0, 1);
 	displayText("Data: ");
+  EepromEraseAll();
 	DA_Init();
 	displayText("ok");
 	
@@ -90,59 +93,11 @@ void init(void)
 	displayText("UART: ");
 	UART_Init();
 	UART_TxString("hello uart 8051");
-	displayText("hello!");
+	displayText("hello-2!");
 	
 	Delay_ms(ms2 * 2);
 }
 
-/*
-void loop_test()
-{
-	clearLine(0);
-	setCursor(0, 0);
-	displayText("   uart tx...   ");
-		
-	UART_Init();
-	UART_TxString("hello");
-	clearLine(1);
-	setCursor(0, 1);
-	displayText(" sent");
-	Delay_ms(250);
-	
-	clearLine(0);
-	setCursor(0, 0);
-	displayText("   uart rx...   ");
-	
-	//UART_Init();
-	while(1)
-	{
-		clearLine(1);
-		setCursor(0, 1);
-		
-		UART_Init();
-		uart_rx_str_size = UART_RXString(ptr_uart_rx_str);
-		displayChar(uart_rx_str_size);
-		displayText(ptr_arr_char_lcd);
-		Delay_ms(250);
-		clearLine(1);
-		setCursor(0, 1);
-		displayText(ptr_uart_rx_str);
-		Delay_ms(700);
-		
-	
-		if (uart_rx_str_size > 0)
-		{
-			break;
-		}
-	}
-	
-	//Delay_ms(2000);
-	initLCD();
-	setCursor(0, 0);
-	displayText("    Finished    ");
-	Delay_ms(500);
-}
-*/
 
 /*
 Flow:
@@ -153,24 +108,75 @@ Flow:
 */
 void loop(void)
 {
-	// 1.1 Read DHT11 sensor
-	// 1.2 Update/Write DHT11's data to eeprom
-	// 2.1 Read temperature/humidity
-	// 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
-	
-	// 3.1 Read data configuration to control devices
+	// 1. Refresh DHT11 sensor's data to eeprom
+  clearLine(0);
+  displayText("11");
+  Delay_ms(ms2);
+  Dht_UpdateCurrentMetricsToEeprom();
+  clearLine(0);
+  displayText("22");
+  Delay_ms(ms2);
+
+  // 2.1 Read temperature/humidity
+  DA_GetHumidity(&humidity);
+  DA_GetTemperature(&temperature);
+  clearLine(0);
+  displayText("Temp: ");
+  displayText(&temperature);
+  clearLine(1);
+  displayText("Hum: ");
+  displayText(&humidity);
+  Delay_ms(ms2);
+
+  // 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
+  // send humidity
+  stradd(ptr_uart_rx_str, "003:", 0); // 003: send humidity
+  stradd(ptr_uart_rx_str, &humidity, 4);
+  //sprintf(uart_rx_str, "003:%s", humidity);
+  // UART_Init();
+  // UART_TxStr(ptr_uart_rx_str, 5);
+  Delay_ms(ms2);
+  // send temperature
+  stradd(ptr_uart_rx_str, "004:", 0); // 003: send humidity
+  stradd(ptr_uart_rx_str, &temperature, 4);
+  //sprintf(uart_rx_str, "004:%s", temperature);
+  // UART_Init();
+  // UART_TxStr(ptr_uart_rx_str, 5);
+
+  //UART_TxString("hello uart 8051");
+
+  // 3.1 Read data configuration to control devices
 	// cooling fan:
 	DA_GetDevice1TurnOnAt(ptr_config_dev1_threshold_on);
 	DA_GetDevice1TurnOffAt(ptr_cfg_dvc1_threshold_on);
 	
 	// Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
+	clearLine(0);
+  clearLine(1);
+  displayText("+++");
+  Delay_ms(ms2);
+
+  // 4.1 UART-RX and proceed command if data is available
+  uart_rx_str_size = 0;
+  UART_Init();
+  if (1) // check if buffer is available
+  {
+    clearLine(0);
+    displayText("RI:");
+    displayChar(RI);
+    
+    //UART_Init();
+    uart_rx_str_size = UART_RXString(ptr_uart_rx_str);
+    Delay_ms(850);
+  }
 	
-	
-	// 4.1 UART-RX and proceed command if data is available
-	UART_Init();
-	uart_rx_str_size = UART_RXString(ptr_uart_rx_str);
-	if (uart_rx_str_size > 0)
+  clearLine(0);
+  clearLine(1);
+  displayText("---");
+  
+  if (uart_rx_str_size > 0)
 	{
+		// Identify the command
 		char cmd[4];
 		for (i = 0; i < 4; i++)
 		{
@@ -192,13 +198,13 @@ void loop(void)
 			cfg_working_mode = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
 			
 			// generate response
-			strncat(ptr_uart_rx_str, "001:", 0); // response
-			strncat(ptr_uart_rx_str, &cfg_working_mode, 4);
-			strncat(ptr_uart_rx_str, "/", 5);
+			stradd(ptr_uart_rx_str, "r01:", 0); // response
+			stradd(ptr_uart_rx_str, &cfg_working_mode, 4);
+			//stradd(ptr_uart_rx_str, 'a', 5);
 			
 			// send reponse to confirm
 			UART_Init();
-			UART_TxStr(ptr_uart_rx_str, 6);
+			UART_TxStr(ptr_uart_rx_str, 5);
 			
 			//Delay_ms(ms2);
 			//clearLine(1);
@@ -209,23 +215,24 @@ void loop(void)
 		else if (strcmp(cmd, "002:") == 0)
 		{
 			// 002: get working mode
-			cfg_working_mode = DA_GetWorkingMode();
+			//cfg_working_mode = DA_GetWorkingMode();
 			
 			// generate response
-			strncat(ptr_uart_rx_str, "002:", 0); // response
-			strncat(ptr_uart_rx_str, &cfg_working_mode, 4);
-			strncat(ptr_uart_rx_str, "/", 5);
+			stradd(ptr_uart_rx_str, "r02:", 0); // response
+			stradd(ptr_uart_rx_str, &cfg_working_mode, 4);
+			//stradd(ptr_uart_rx_str, 'a', 5);
 			
 			// send current working mode to uart
 			UART_Init();
-			UART_TxStr(ptr_uart_rx_str, 6);
+			UART_TxString(ptr_uart_rx_str);
 		}
 		
 		Delay_ms(ms0);
 		//clearLine(1);
 	}
-	
-	Delay_ms(ms0);
+
+  
+  Delay_ms(ms2);
 }
 
 void main(void)

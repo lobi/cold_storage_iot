@@ -10,9 +10,10 @@ sbit RW = P2^5;
 sbit EN = P2^7;
 
 /* on proteus */
-//sbit RS = P2^7;
-//sbit RW = P2^6;
-//sbit EN = P2^5;
+// sbit RS = P2^7;
+// sbit RW = P2^6;
+// sbit EN = P2^5;
+
 
 void cmd(char a)
 {

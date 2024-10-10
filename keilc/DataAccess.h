@@ -7,56 +7,64 @@
  * 0|123|4567890
  * 0|017|050
  * --------------------------------------------------------------
+ * Address defination: https://docs.google.com/spreadsheets/d/1maRuC_2jccFvu1Zl6Ll2AjtJf_BLCOZsvrVx8x3rNZg/
  * Address	Length	Description
  * --------------------------------------------------------------
  * 0				1				working mode (value: 1==auto, 0==manual, 2: NaN)
- * 1				2				Celsius: Threshold turn on the Air Conditional's Compressor
- * 3				2				Celsius: Threshold turn off the Air Conditional's Compressor
+ * 1				2				Celsius: Threshold turn ON the Air Conditional's Compressor
+ * 3				2				Celsius: Threshold turn OFF the Air Conditional's Compressor
  * 5				2				Celsius: temperature. i.e.: 05 -> 05
  * 7				2				percent: humidity. i.e.: 16 -> 16
+ * 9        2       percent: Threshold turn ON the Dehumidifer fan
+ * 11       2       percent: Threshold turn OFF the Dehumidifer fan
  */
  
 void DA_SetValue(unsigned char *pointer, int addr)
 {
 	while(*pointer) 
 	{
-    EepromWriteByte(*pointer++, addr, 0);
-		addr++;
+    EepromWriteByte(*pointer, addr, 0);
+    pointer++;
+    addr++;
   }
 }
 
 void DA_GetHumidity(unsigned char *pointer)
 {
-	int addr = 7;
-	int i = 0;
-	for (i = 0; i < 4; i++)
-	{
-		*pointer = EepromReadByte(addr, 0);
-		addr++;
-		*pointer++;
-	}
+	// int addr = 7;
+	// int i = 0;
+	// for (i = 0; i < 4; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	pointer++;
+	// }
+  EepromReadNBytes(7, pointer, 2, 0);
 }
 
 void DA_SetHumidity(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 7);
+  //EepromWriteNBytes(7, pointer, 2, 0);
 }
 
 void DA_GetTemperature(unsigned char *pointer)
 {
-	int addr = 5;
-	int i = 0;
-	for (i = 0; i < 4; i++)
-	{
-		*pointer = EepromReadByte(addr, 0);
-		addr++;
-		*pointer++;
-	}
+	// int addr = 5;
+	// int i = 0;
+	// for (i = 0; i < 4; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	*pointer++;
+	// }
+  EepromReadNBytes(5, pointer, 2, 0);
 }
 
 void DA_SetTemperature(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 5);
+  //EepromWriteNBytes(5, pointer, 2, 0);
 }
 
 
@@ -66,19 +74,21 @@ Example data: 017 --> 01.7 Celsius (length == 4)
 */
 void DA_GetDevice1TurnOffAt(unsigned char *pointer)
 {
-	int addr = 3;
-	int i = 0;
-	for (i = 0; i < 4; i++)
-	{
-		*pointer = EepromReadByte(addr, 0);
-		addr++;
-		*pointer++;
-	}
+	// int addr = 3;
+	// int i = 0;
+	// for (i = 0; i < 4; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	*pointer++;
+	// }
+  EepromReadNBytes(3, pointer, 2, 0);
 }
 
 void DA_SetDevice1TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
 {
 	DA_SetValue(pointer, 3);
+  //EepromWriteNBytes(3, pointer, 2, 0);
 }
 
 /*
@@ -87,20 +97,61 @@ Example data: 017 --> 01.7 Celsius (length == 3)
 */
 void DA_GetDevice1TurnOnAt(unsigned char *pointer)
 {
-	int addr = 1;
-	int i = 0;
-	for (i = 0; i < 3; i++)
-	{
-		*pointer = EepromReadByte(addr, 0);
-		addr++;
-		*pointer++;
-	}
+	// int addr = 1;
+	// int i = 0;
+	// for (i = 0; i < 3; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	pointer++;
+	// }
+  EepromReadNBytes(1, pointer, 2, 0);
 }
 
 void DA_SetDevice1TurnOnAt(unsigned char *pointer) // set device 1 threshold to turn on
 {
-	DA_SetValue(pointer, 1);
+  DA_SetValue(pointer, 1);
+  //EepromWriteNBytes(1, pointer, 2, 0);
 }
+
+
+/*
+Dehumidifier
+*/
+void DA_GetDevice2TurnOffAt(unsigned char *pointer)
+{
+	// int addr = 3;
+	// int i = 0;
+	// for (i = 0; i < 4; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	*pointer++;
+	// }
+  EepromReadNBytes(11, pointer, 2, 0);
+}
+void DA_SetDevice2TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
+{
+	DA_SetValue(pointer, 11);
+}
+void DA_GetDevice2TurnOnAt(unsigned char *pointer)
+{
+	// int addr = 1;
+	// int i = 0;
+	// for (i = 0; i < 3; i++)
+	// {
+	// 	*pointer = EepromReadByte(addr, 0);
+	// 	addr++;
+	// 	pointer++;
+	// }
+  EepromReadNBytes(9, pointer, 2, 0);
+}
+void DA_SetDevice2TurnOnAt(unsigned char *pointer) // set device 1 threshold to turn on
+{
+  DA_SetValue(pointer, 9);
+  //EepromWriteNBytes(1, pointer, 2, 0);
+}
+
 
 /*working mode*/
 unsigned char DA_GetWorkingMode()
