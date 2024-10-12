@@ -26,5 +26,12 @@ void Delay_us(long int k)
 	TR0=1;
 	while(!TF0);
 	TF0=0;
-}  
+}
+
+void delay(unsigned int count)    		
+{
+	int i,j;
+	for(i=0;i<count;i++)
+	for(j=0;j<112;j++);
+}
 #endif

@@ -65,6 +65,12 @@
     "*.scss.liquid": "liquid-scss",
     "delay.h": "c",
     "dataaccess.h": "c",
-    "dht11.h": "c"
+    "dht11.h": "c",
+    "lcd8bit.h": "c",
+    "eeprom.h": "c",
+    "reg51.h": "c",
+    "reg52.h": "c",
+    "REG52.H": "cpp",
+    "stdlib.h": "c"
   }
 }

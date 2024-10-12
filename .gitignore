@@ -123,3 +123,11 @@ dkms.conf
 *.l1p
 *.l2p
 *.iex
+arduino/esp8266.ino.bk20241006
+arduino/esp8266_thingsboard/esp8266_thingsboard.ino.bk20240925
+keilc/.vscode/c_cpp_properties.json
+keilc/.vscode/uv4.log
+keilc/.vscode/uv4.log.lock
+proteus/EEPROM_I2C.pdsprj.LOBI-HP240G9.lobi0.workspace
+proteus/Project Backups/EEPROM_I2C \[20241010, 12-03-23\].pdsprj
+proteus/Project Backups/EEPROM_I2C \[Autosaved\].pdsprj

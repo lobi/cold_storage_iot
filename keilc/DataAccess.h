@@ -31,33 +31,16 @@ void DA_SetValue(unsigned char *pointer, int addr)
 
 void DA_GetHumidity(unsigned char *pointer)
 {
-	// int addr = 7;
-	// int i = 0;
-	// for (i = 0; i < 4; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	pointer++;
-	// }
   EepromReadNBytes(7, pointer, 2, 0);
 }
 
 void DA_SetHumidity(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 7);
-  //EepromWriteNBytes(7, pointer, 2, 0);
 }
 
 void DA_GetTemperature(unsigned char *pointer)
 {
-	// int addr = 5;
-	// int i = 0;
-	// for (i = 0; i < 4; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	*pointer++;
-	// }
   EepromReadNBytes(5, pointer, 2, 0);
 }
 
