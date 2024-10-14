@@ -24,7 +24,7 @@ unsigned char EepromReadByte(unsigned char Address, unsigned char Page)
 	Data = I2CRead();
 	I2CNak();
 	I2CStop();
-	//Delay_us();
+	Delay_us(10);
 	
 	return Data;
 }

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <reg52.h> 
 //#include <reg51.h>
 //#include <REGX51.H>
@@ -99,7 +99,7 @@ void init(void)
 	// UART
 	displayText("UART: ");
   UART_Init();
-  //Ext_int_Init(); // enable uart serial interrupt
+  Ext_int_Init(); // enable uart serial interrupt
   //Timer0_Init();  // init timer 0
 
   UART_TxString("hello uart 8051");
@@ -108,34 +108,34 @@ void init(void)
 	Delay_ms(ms2 * 2);
 }
 
-void on_uart(unsigned char txt[])
+void on_uart(unsigned char *prt)
 {
-  volatile unsigned char cmd[4];
-  volatile unsigned char txs[6];
-  volatile unsigned char wm;
+  unsigned char cmd[4];
+  unsigned char txs[6];
+  unsigned char wm;
+
+  strc(cmd, prt, 4);
   // Identify the command
   // memset(cmd, '\0', 4);
-  // for (i = 0; i < sizeof(cmd); i++)
+  // for (i = 0; i < 4; i++)
   // {
   //   cmd[i] = prt[i];
   // }
   //memset(cmd, '\0', 4);
-  stradd(cmd, txt, 0, 4);
+  //stradd(cmd, txt, 0, 4);
 
-  
-  
   if (strcmp(cmd, "001:") == 0)
   {
     LED2 = 0x01;
     // 001: set working mode
     
     // update to eeprom
-    wm = txt[4];
+    wm = prt[4];
     DA_SetWorkingMode(wm); // save to eeprom
     wm = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
 
     // generate response content
-    sprintf(txs, "001:%d", wm);
+    sprintf(txs, "001:%s", wm);
 
     // send to uart for confirmation
     UART_Init();
@@ -148,7 +148,7 @@ void on_uart(unsigned char txt[])
     wm = DA_GetWorkingMode();
     
     // generate response content
-    sprintf(txs, "002:%d", wm);
+    sprintf(txs, "002:%s", wm);
 
     // send to uart for confirmation
     UART_Init();
@@ -157,7 +157,7 @@ void on_uart(unsigned char txt[])
 
   clearLine(0);
   displayText("UART-RX:");
-  displayText(txt);
+  displayText(prt);
   clearLine(1);
   displayText("Cmd:");
   displayText(cmd);
@@ -178,9 +178,11 @@ void urx()
   clearLine(0);
   displayText("RX...");
 
-  memset(buf16, '\0', 16);
+  
   gb_i = 0;
   UART_Init();
+  Ext_int_Init();
+  //memset(buf16, '\0', 16);
   gb_i = UART_RXString(buf16);
   if (gb_i > 0)
   {
