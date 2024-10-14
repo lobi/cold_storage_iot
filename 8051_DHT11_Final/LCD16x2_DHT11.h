@@ -12,8 +12,66 @@
 #include <stdlib.h>
 #include "LCD8bit.h"
 
-sbit DHT11=P3^7;		/* Connect DHT11 Sensor Pin to P2.1 Pin */
+sbit DHT11=P2^2;		/* Connect DHT11 Sensor Pin to P2.2 Pin */
+sbit FanT=P2^3;	
+sbit LedH=P2^4;	
 int I_RH,D_RH,I_Temp,D_Temp,CheckSum; 
+unsigned char   
+	gb_d1on[2],  // device 1 turn on at
+  gb_d1off[2], // device 1 turn off at
+  gb_d2on[2],  // device 2 turn on at
+  gb_d2off[2], // device 2 turn off at
+    buf16[16];   // bugger size 16, e.g.: for LCD, uart...
+
+void FanControl()
+{	
+
+
+  // cooling fan: 
+//	clearLine(0);
+	DA_GetDevice1TurnOnAt(&gb_d1on);
+  memset(buf16, 0, 16);
+  sprintf(buf16, "Fan Tem ON >= %s", gb_d1on);
+//  displayText(buf16);
+//	clearLine(1);
+	DA_GetDevice1TurnOffAt(&gb_d1off);
+  memset(buf16, 0, 16);
+  sprintf(buf16, "       OFF <= %s", gb_d1off);
+//  displayText(buf16);
+	
+	if(I_Temp >= atoi(gb_d1on)) {//30 atoi(gb_d1on)
+	DA_SetValue(0, 13);
+	FanT=0;
+	}else if(I_Temp <= atoi(gb_d1off)){//25 atoi(gb_d1off)
+	DA_SetValue(1, 13);
+	FanT=1;
+	}
+  // Hum led: 
+
+	DA_GetDevice2TurnOnAt(&gb_d2on);
+  memset(buf16, 0, 16);
+ // sprintf(buf16, "Fan Tem ON >= %s", gb_d2on);
+
+	DA_GetDevice2TurnOffAt(&gb_d2off);
+  memset(buf16, 0, 16);
+ // sprintf(buf16, "       OFF <= %s", gb_d2off);
+
+	
+	
+//if (DA_GetWorkingMode() == '1') 
+//{
+
+ 
+  if(I_RH >= atoi(gb_d2off)) {//24 atoi(gb_d2off)
+	DA_SetValue(1, 14);
+	LedH = 1;
+	}else if(I_RH <= atoi(gb_d2on))	{//20  atoi(gb_d2on)
+	DA_SetValue(0, 14);
+	LedH = 0;
+	}
+// }
+}
+
 
 void timer_delay20ms()		/* Timer0 delay function */
 {
@@ -103,12 +161,13 @@ void Dht_Update()
 			setCursor(0,0);
 			sprintf(dat,"Hum = %d.%d",I_RH,D_RH);
 			displayText(dat);
-			displayText("%");
+			displayText(" %");
 			sprintf(dat,"Tem = %d.%d",I_Temp,D_Temp);   
 			setCursor(0,1);
 			displayText(dat);
 			displayChar(0xDF);
 			displayText("C");
 		delay(1000);
+		FanControl();
 	}	
 }
