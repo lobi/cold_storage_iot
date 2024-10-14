@@ -123,6 +123,9 @@ dkms.conf
 *.l1p
 *.l2p
 *.iex
+
+*.bk2024*
+
 arduino/esp8266.ino.bk20241006
 arduino/esp8266_thingsboard/esp8266_thingsboard.ino.bk20240925
 keilc/.vscode/c_cpp_properties.json

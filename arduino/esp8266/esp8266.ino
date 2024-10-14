@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 /* Wifi configuration */
-const char* WIFI_SSID = "BALOI";           //"FAI'S EXAM 2.4GHz"
-const char* WIFI_PASSWORD = "0909286456";  //"Fptacademy@2023"
+const char* WIFI_SSID = "Xiaomi 13T";           //"FAI'S EXAM 2.4GHz"
+const char* WIFI_PASSWORD = "88888888";  //"Fptacademy@2023"
 
 /* Thingsboards configuration */
 const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";

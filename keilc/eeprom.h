@@ -24,7 +24,7 @@ unsigned char EepromReadByte(unsigned char Address, unsigned char Page)
 	Data = I2CRead();
 	I2CNak();
 	I2CStop();
-	Delay_us();
+	//Delay_us();
 	
 	return Data;
 }
@@ -55,6 +55,7 @@ void EepromErasePage(unsigned char Page)
 		EepromWriteByte(0x00, i, Page);	
 }
 
+/*
 void EepromEraseAll()
 {
 	unsigned char i;
@@ -64,4 +65,5 @@ void EepromEraseAll()
 		EepromWriteByte(0x00, i, 1);
 	}	
 }
+*/
 #endif

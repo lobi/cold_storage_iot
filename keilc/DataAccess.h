@@ -57,14 +57,6 @@ Example data: 017 --> 01.7 Celsius (length == 4)
 */
 void DA_GetDevice1TurnOffAt(unsigned char *pointer)
 {
-	// int addr = 3;
-	// int i = 0;
-	// for (i = 0; i < 4; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	*pointer++;
-	// }
   EepromReadNBytes(3, pointer, 2, 0);
 }
 
@@ -80,14 +72,6 @@ Example data: 017 --> 01.7 Celsius (length == 3)
 */
 void DA_GetDevice1TurnOnAt(unsigned char *pointer)
 {
-	// int addr = 1;
-	// int i = 0;
-	// for (i = 0; i < 3; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	pointer++;
-	// }
   EepromReadNBytes(1, pointer, 2, 0);
 }
 
@@ -101,16 +85,9 @@ void DA_SetDevice1TurnOnAt(unsigned char *pointer) // set device 1 threshold to 
 /*
 Dehumidifier
 */
+/*
 void DA_GetDevice2TurnOffAt(unsigned char *pointer)
 {
-	// int addr = 3;
-	// int i = 0;
-	// for (i = 0; i < 4; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	*pointer++;
-	// }
   EepromReadNBytes(11, pointer, 2, 0);
 }
 void DA_SetDevice2TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
@@ -119,14 +96,6 @@ void DA_SetDevice2TurnOffAt(unsigned char *pointer) // set device 1 threshold to
 }
 void DA_GetDevice2TurnOnAt(unsigned char *pointer)
 {
-	// int addr = 1;
-	// int i = 0;
-	// for (i = 0; i < 3; i++)
-	// {
-	// 	*pointer = EepromReadByte(addr, 0);
-	// 	addr++;
-	// 	pointer++;
-	// }
   EepromReadNBytes(9, pointer, 2, 0);
 }
 void DA_SetDevice2TurnOnAt(unsigned char *pointer) // set device 1 threshold to turn on
@@ -134,6 +103,7 @@ void DA_SetDevice2TurnOnAt(unsigned char *pointer) // set device 1 threshold to 
   DA_SetValue(pointer, 9);
   //EepromWriteNBytes(1, pointer, 2, 0);
 }
+*/
 
 
 /*working mode*/

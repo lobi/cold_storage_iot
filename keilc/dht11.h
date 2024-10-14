@@ -54,6 +54,10 @@ int Dht_Rcv() /* receive data */
   return c;
 }
 
+/*
+Get data from DHT11 sensor
+save to eeprom
+*/
 void Dht_Update()
 {
   Dht_Rqst();  /* send start pulse */

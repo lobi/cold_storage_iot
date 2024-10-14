@@ -70,8 +70,3 @@ void Serial_ISR() interrupt 4
 	P1 = SBUF;		/* Give received data on port 1 */
 	RI = 0;			/* Clear RI flag */
 }
-
-void uart_a(void)
-{
-  return P1 != 0;
-}
