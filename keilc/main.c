@@ -58,22 +58,27 @@ void send_metrics(void)
   Delay_ms(ms0);
   strrst(buf2, 2);
   DA_GetHumidity(buf2); // retrieve data from eeprom
+  Delay_ms(ms1);
   strrst(buf16, 16); // reset
   stradd(buf16, "003:", 0, 4);
   stradd(buf16, buf2, 4, 2);
   UART_Init();
-  UART_TxStr(buf16, 6);
-  Delay_ms(ms0);
+  //UART_TxStr(buf16, 6); // not work on kit
+  UART_TxString("003:32\n"); // hard code for testing
+
+  Delay_ms(ms1);
 
   // send temperature
-  Delay_ms(ms0);
+  Delay_ms(ms2);
   strrst(buf2, 2);
   DA_GetTemperature(buf2); // retrieve data from eeprom
+  Delay_ms(ms1);
   strrst(buf16, 16); // reset
   stradd(buf16, "004:", 0, 4);
   stradd(buf16, buf2, 4, 2);
   UART_Init();
-  UART_TxStr(buf16, 6);
+  //UART_TxStr(buf16, 6); // not work on kit
+  UART_TxString("004:03\n"); // hard code for testing
   Delay_ms(ms0);
 
   // lcd for testing
@@ -140,7 +145,7 @@ void init(void)
   //Ext_int_Init(); // enable uart serial interrupt
   //Timer0_Init();  // init timer 0
 
-  UART_TxString("hello uart 8051");
+  //UART_TxString("hello uart 8051");
 	displayText("hello-2!");
 	
 	Delay_ms(ms2 * 2);
@@ -198,26 +203,28 @@ void on_rx(unsigned char *prt)
 
 void urx()
 {
+  int icount = 0;
   LED1 = 0;
   LED2 = 0;
   
 
   clearLine(0);
   displayText("RX...");
-
   
-  gb_i = 0;
-  UART_Init();
-  //Ext_int_Init();
-  //memset(buf16, '\0', 16);//reset
-  strrst(buf16, 16);
-  gb_i = UART_RXString(buf16);
-  if (gb_i > 0)
+  while (icount < 3)
   {
-    LED1 = 1;
-    on_rx(buf16);
+    Delay_ms(ms0);
+    strrst(buf16, 16);
+    gb_i = 0;
+    UART_Init();
+    gb_i = UART_RXString(buf16);
+    if (gb_i > 0)
+    {
+      LED1 = 1;
+      on_rx(buf16);
+      icount++;
+    }
   }
-
   LED1 = 0;
 }
 

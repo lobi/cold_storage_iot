@@ -190,6 +190,11 @@ void send_metrics(String m_key, String m_val) {
     client.publish("v1/devices/me/telemetry", telemetry);
 }
 
+void send_attribute(String attr, String val) {
+  String msg = "{\"" + attr + "\": \"" + String(val == "1" ? "true" : "false") + "\"}";
+  client.publish("v1/devices/me/attributes", msg.c_str());
+}
+
 /*
   8051 <-uart-> 8266 <-wifi-> Thingsboard MQTT
   Thingsboard MQTT: Attributes API & RPC API
@@ -266,12 +271,20 @@ void listen_on_uart_8051() {
 
     String str_rx = my_uart.readString();
     String cmd = str_rx.substring(0, 3);
-    String val = str_rx.substring(4, 5);
+    String val = str_rx.substring(4, str_rx.length());
     
     Serial.println("uart cmd: " + cmd);
-    if (cmd == "003:") {
+    if (cmd == "002:") {
+      send_attribute("setControlMode", val + ".0");
+      Serial.println("telemetry HUMIDITY_KEY was sent: " + cmd);
+    }
+    else if (cmd == "003:") {
       send_metrics(HUMIDITY_KEY, val);
       Serial.println("telemetry HUMIDITY_KEY was sent: " + cmd);
+    }
+    else if (cmd == "004:") {
+      send_metrics(TEMPERATURE_KEY, val);
+      Serial.println("telemetry TEMPERATURE_KEY was sent: " + cmd);
     }
 
     // while (my_uart.available())
@@ -282,6 +295,7 @@ void listen_on_uart_8051() {
     // Serial.println("");
   }
 }
+
 
 // Send data to 8051 (UART - TX)
 void send_to_uart_8051(const char* method, char* data, unsigned int length) {
