@@ -11,65 +11,73 @@
 #include<string.h>
 #include <stdlib.h>
 #include "LCD8bit.h"
+#include "eeprom.h"
 
-sbit DHT11=P2^2;		/* Connect DHT11 Sensor Pin to P2.2 Pin */
+sbit DHT11=P1^7;		/* Connect DHT11 Sensor Pin to P2.2 Pin */
 sbit FanT=P2^3;	
 sbit LedH=P2^4;	
-int I_RH,D_RH,I_Temp,D_Temp,CheckSum; 
+sbit TestLed=P2^2;
+int I_RH,D_RH,I_Temp,D_Temp,CheckSum;
+
 unsigned char   
 	gb_d1on[2],  // device 1 turn on at
-  gb_d1off[2], // device 1 turn off at
-  gb_d2on[2],  // device 2 turn on at
-  gb_d2off[2], // device 2 turn off at
+  gb_d1off[2], // device 1 turn off at  
+    buf2[2],     // buffer size 2
     buf16[16];   // bugger size 16, e.g.: for LCD, uart...
 
 void FanControl()
 {	
+TestLed = 1;
 
 
-  // cooling fan: 
-//	clearLine(0);
-	DA_GetDevice1TurnOnAt(&gb_d1on);
+	
+
+	
+  if (DA_GetWorkingMode() == '1') 
+  {
+  // cooling fan auto on when in AUTO model
+	//	DA_GetDevice1TurnOnAt(&gb_d1on);
+	//	DA_GetDevice1TurnOffAt(&gb_d1off);
+
+	clearLine(0);
+	//DA_GetDevice1TurnOnAt(&gb_d1on);
+	 EepromReadNBytes(3, gb_d1on, 2, 0);
   memset(buf16, 0, 16);
-  sprintf(buf16, "Fan Tem ON >= %s", gb_d1on);
-//  displayText(buf16);
-//	clearLine(1);
+  sprintf(buf16, "Fan TemON >= %d", atoi(gb_d1on));
+  displayText(buf16);
+	clearLine(1);
 	DA_GetDevice1TurnOffAt(&gb_d1off);
   memset(buf16, 0, 16);
-  sprintf(buf16, "       OFF <= %s", gb_d1off);
-//  displayText(buf16);
-	
+  sprintf(buf16, "  OFF <= %s", gb_d1off);
+	displayText(buf16);
+	delay(1000);
+ 
 	if(I_Temp >= atoi(gb_d1on)) {//30 atoi(gb_d1on)
-	DA_SetValue(0, 13);
+	EepromWriteByte(0, 13, 0);
 	FanT=0;
 	}else if(I_Temp <= atoi(gb_d1off)){//25 atoi(gb_d1off)
-	DA_SetValue(1, 13);
+	EepromWriteByte(1, 13, 0);
 	FanT=1;
 	}
-  // Hum led: 
-
-	DA_GetDevice2TurnOnAt(&gb_d2on);
-  memset(buf16, 0, 16);
- // sprintf(buf16, "Fan Tem ON >= %s", gb_d2on);
-
-	DA_GetDevice2TurnOffAt(&gb_d2off);
-  memset(buf16, 0, 16);
- // sprintf(buf16, "       OFF <= %s", gb_d2off);
-
-	
-	
-//if (DA_GetWorkingMode() == '1') 
-//{
-
- 
-  if(I_RH >= atoi(gb_d2off)) {//24 atoi(gb_d2off)
-	DA_SetValue(1, 14);
+		
+  if(I_RH > 25) {//25 atoi(gb_d2off)
+	EepromWriteByte(1, 14, 0);
 	LedH = 1;
-	}else if(I_RH <= atoi(gb_d2on))	{//20  atoi(gb_d2on)
-	DA_SetValue(0, 14);
+	}else if(I_RH <= 22)	{//21  atoi(gb_d2on)
+	EepromWriteByte(0, 14, 0);
 	LedH = 0;
-	}
-// }
+		TestLed = 0;
+		delay(500);
+		TestLed = 1;
+	};
+ }
+	
+ else{//Manual mode
+	 FanT = EepromReadByte(13, 0) - '0';//Convert char to int
+	 LedH = EepromReadByte(14, 0) - '0';
+	 
+
+ }
 }
 
 
