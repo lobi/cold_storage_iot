@@ -31,12 +31,12 @@ void displayChar(char b)
 	EN=0;
 }
 
-void displayText(const char *p)
+void displayText(const char *str)
 {
-	while(*p != '\0')
+	int i;
+	for (i = 0; str[i] != '\0' && i < 16; i++) /* Send each char of string till the NULL */
 	{
-		displayChar(*p);
-		p++;
+		displayChar(str[i]); /* Call LCD data write */
 	}
 }
 

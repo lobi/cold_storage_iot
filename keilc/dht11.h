@@ -54,6 +54,10 @@ int Dht_Rcv() /* receive data */
   return c;
 }
 
+/*
+Get data from DHT11 sensor
+save to eeprom
+*/
 void Dht_Update()
 {
   Dht_Rqst();  /* send start pulse */
@@ -76,25 +80,27 @@ void Dht_Update()
   //sprintf(buff2, "%ld", I_Temp);
   //sprintf(buff2, sizeof(crrt), "%2d", I_RH);
   
-  sprintf(buf2, "%d", I_RH);
+  //sprintf(buf2, "%d", I_RH);
+  strrst(buf2, 2);
   DA_SetHumidity(buf2);
-  clearLine(0);
-  memset(buf16, 0, 16);
-  sprintf(buf16, "Hum=%d.%d", I_RH, D_RH);
-  displayText(buf16);
+  //clearLine(0);
+  //memset(buf16, 0, 16);
+  //sprintf(buf16, "Hum=%d.%d", I_RH, D_RH);
+  //displayText(buf16);
 
-  sprintf(buf2, "%d", I_Temp);
+  //sprintf(buf2, "%d", I_Temp);
+  strrst(buf2, 2);
   DA_SetTemperature(buf2);
-  clearLine(1);
-  memset(buf16, 0, 16);
-  sprintf(buf16, "Tem=%d.%d", I_Temp, D_Temp);
-  displayText(buf16);
+  // clearLine(1);
+  // memset(buf16, 0, 16);
+  // sprintf(buf16, "Tem=%d.%d", I_Temp, D_Temp);
+  // displayText(buf16);
 
-  memset(buf16, 0, 16);
-  sprintf(buf16, "-%d", CheckSum);
-  displayText(buf16);
+  // memset(buf16, 0, 16);
+  // sprintf(buf16, "-%d", CheckSum);
+  // displayText(buf16);
   
-  Delay_ms(100);
+  // Delay_ms(100);
 
   // validate to make sure it saved
   //DA_GetHumidity(&crrt_hum);

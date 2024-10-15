@@ -8,12 +8,10 @@ void Delay_ms(long int k)
 	TH0=0x00;
 	while(k!=0)
 	{
-		for(i=0;i<4;i++)
-		{
-			TR0=1;
-			while(!TF0);
-			TF0=0;
-		}
+		for(i=0;i<4;i++){
+		TR0=1;
+		while(!TF0);
+		TF0=0;}
 		k--;
 	}
 }  
