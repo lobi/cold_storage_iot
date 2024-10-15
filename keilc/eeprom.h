@@ -55,7 +55,6 @@ void EepromErasePage(unsigned char Page)
 		EepromWriteByte(0x00, i, Page);	
 }
 
-/*
 void EepromEraseAll()
 {
 	unsigned char i;
@@ -65,5 +64,4 @@ void EepromEraseAll()
 		EepromWriteByte(0x00, i, 1);
 	}	
 }
-*/
 #endif

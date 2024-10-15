@@ -1,27 +1,6 @@
 #ifndef __DELAY_H
 #define __DELAY_H
 
-// int delay1(int k)
-// {
-//   if (k > 0)
-//   {
-//     int i;
-//     TMOD = 0X02;
-//     TH0 = 0x00;
-
-//     for (i = 0; i < 4; i++)
-//     {
-//       TR0 = 1;
-//       while (!TF0);
-//       TF0 = 0;
-//     }
-//     k--;
-//     k = delay1(k);
-//   }
-
-//   return k;
-// }
-
 void Delay_ms(long int k)
 {
 	int i;
@@ -29,12 +8,10 @@ void Delay_ms(long int k)
 	TH0=0x00;
 	while(k!=0)
 	{
-		for(i=0;i<4;i++)
-		{
-			TR0=1;
-			while(!TF0);
-			TF0=0;
-		}
+		for(i=0;i<4;i++){
+		TR0=1;
+		while(!TF0);
+		TF0=0;}
 		k--;
 	}
 }  

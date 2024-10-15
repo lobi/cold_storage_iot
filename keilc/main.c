@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <reg52.h> 
 //#include <reg51.h>
 //#include <REGX51.H>
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "utils.h"
 #include "delay.h"
 #include "I2C.h"
@@ -50,11 +52,47 @@ void set_sample_data()
 	//clearLine(1);
 }
 
+void send_metrics(void)
+{
+  // send humidity
+  Delay_ms(ms0);
+  strrst(buf2, 2);
+  DA_GetHumidity(buf2); // retrieve data from eeprom
+  strrst(buf16, 16); // reset
+  stradd(buf16, "003:", 0, 4);
+  stradd(buf16, buf2, 4, 2);
+  UART_Init();
+  UART_TxStr(buf16, 6);
+  Delay_ms(ms0);
+
+  // send temperature
+  Delay_ms(ms0);
+  strrst(buf2, 2);
+  DA_GetTemperature(buf2); // retrieve data from eeprom
+  strrst(buf16, 16); // reset
+  stradd(buf16, "004:", 0, 4);
+  stradd(buf16, buf2, 4, 2);
+  UART_Init();
+  UART_TxStr(buf16, 6);
+  Delay_ms(ms0);
+
+  // lcd for testing
+  clearLine(0);
+  displayText("Mem-Hum:");
+  DA_GetHumidity(buf2);
+  displayText(buf2);
+  clearLine(1);
+  displayText("Mem-Tem:");
+  DA_GetTemperature(buf2);
+  displayText(buf2);
+  Delay_ms(ms2);
+}
+
 void init(void)
 {
   volatile unsigned char wm = '1'; // default: auto
-  LED1 = 0x00;
-  LED2 = 0x00;
+  LED1 = 0;
+  LED2 = 0;
 
   // LCD
 	initLCD();
@@ -99,7 +137,7 @@ void init(void)
 	// UART
 	displayText("UART: ");
   UART_Init();
-  Ext_int_Init(); // enable uart serial interrupt
+  //Ext_int_Init(); // enable uart serial interrupt
   //Timer0_Init();  // init timer 0
 
   UART_TxString("hello uart 8051");
@@ -108,64 +146,53 @@ void init(void)
 	Delay_ms(ms2 * 2);
 }
 
-void on_uart(unsigned char *prt)
+void on_rx(unsigned char *prt)
 {
-  unsigned char cmd[4];
-  unsigned char txs[6];
-  unsigned char wm;
+  unsigned char rxcmd[] = {0, 0, 0, 0};
+  unsigned char txs[6] = {0, 0, 0, 0, 0, 0};
+  unsigned char wm = '0';
 
-  strc(cmd, prt, 4);
-  // Identify the command
-  // memset(cmd, '\0', 4);
-  // for (i = 0; i < 4; i++)
-  // {
-  //   cmd[i] = prt[i];
-  // }
-  //memset(cmd, '\0', 4);
-  //stradd(cmd, txt, 0, 4);
+  strrst(rxcmd, 4);
+  strc(rxcmd, prt, 4);
 
-  if (strcmp(cmd, "001:") == 0)
+  clearLine(1);
+  displayText(prt);
+  if (strcmp(rxcmd, "001:") == 0)
   {
-    LED2 = 0x01;
+    LED2 = 1;
     // 001: set working mode
     
     // update to eeprom
-    wm = prt[4];
-    DA_SetWorkingMode(wm); // save to eeprom
-    wm = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
+    DA_SetWorkingMode(prt[4]);
+    Delay_ms(4);
 
     // generate response content
-    sprintf(txs, "001:%s", wm);
+    stradd(txs, "001:", 0, 4);
+    txs[4] = DA_GetWorkingMode();
+    Delay_ms(4);
 
     // send to uart for confirmation
     UART_Init();
-    UART_TxStr(txs, 6);
+    UART_TxString(txs);
   }
-  else if (strcmp(cmd, "002:") == 0)
+  else if (strcmp(rxcmd, "002:") == 0)
   {
-    LED2 = 0x01;
+    LED2 = 1;
     // 002: get working mode
-    wm = DA_GetWorkingMode();
-    
+
     // generate response content
-    sprintf(txs, "002:%s", wm);
+    stradd(txs, "002:", 0, 4);
+    txs[4] = DA_GetWorkingMode();
+    Delay_ms(4);
 
     // send to uart for confirmation
     UART_Init();
     UART_TxStr(txs, 6);
   }
-
-  clearLine(0);
-  displayText("UART-RX:");
-  displayText(prt);
-  clearLine(1);
-  displayText("Cmd:");
-  displayText(cmd);
-  displayText("+");
-
   
-  Delay_ms(ms2 * 5);
-  LED2 = 0x00;
+  Delay_ms(ms2); // to have enough time to see the LED turn on
+  LED2 = 0;
+  LED1 = 0;
   //clearLine(1);
 }
 
@@ -181,13 +208,14 @@ void urx()
   
   gb_i = 0;
   UART_Init();
-  Ext_int_Init();
-  //memset(buf16, '\0', 16);
+  //Ext_int_Init();
+  //memset(buf16, '\0', 16);//reset
+  strrst(buf16, 16);
   gb_i = UART_RXString(buf16);
   if (gb_i > 0)
   {
-    LED1 = 0x01;
-    on_uart(buf16);
+    LED1 = 1;
+    on_rx(buf16);
   }
 
   LED1 = 0;
@@ -203,41 +231,16 @@ Flow:
 void loop(void)
 {
   LED1 = 0;
+  strrst(buf16, 16);
   //char buf2[2];
   // 1. Refresh DHT11 sensor's data to eeprom
   //Dht_Update();
   //Delay_ms(ms2); //test
 
   // 2.1 Read temperature/humidity
-  DA_GetHumidity(&gb_hum);
-  DA_GetTemperature(&gb_temp);
+  send_metrics();
 
-  // memset(buf16, 0, 16);
-  // sprintf(buf16, "Mem-Hum=%s", gb_hum);
-  // clearLine(0);
-  // displayText(buf16);
-
-  // memset(buf16, 0, 16);
-  // sprintf(buf16, "Mem-Tem=%s", gb_temp);
-  // clearLine(1);
-  // displayText(buf16);
-
-  // 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
-  // send humidity to uart
-  //memset(buf16, 0, 16);
-  //sprintf(buf16, "003:%s/", gb_hum);
-  //UART_Init();
-  //UART_TxStr(buf16, 7);
-  //Delay_ms(ms1);
-
-  // send temerature to uart
-  //memset(buf16, 0, 16);
-  //sprintf(buf16, "004:%s/", gb_hum);
-  //UART_Init();
-  //UART_TxStr(buf16, 7);
-  Delay_ms(ms1);
-
-  // 3.1 Read data configuration to control devices
+    // 3.1 Read data configuration to control devices
 	// cooling fan: On at
 	DA_GetDevice1TurnOnAt(&buf2);
   memset(buf16, 0, 16);
@@ -261,7 +264,7 @@ void loop(void)
   // 4.1 UART-RX and proceed command if data is available
   urx();
 
-  gb_i = 0;
+  //gb_i = 0;
   // if (0)
   // {
   //   gb_i = UART_RXString(buf16); // blocking forever

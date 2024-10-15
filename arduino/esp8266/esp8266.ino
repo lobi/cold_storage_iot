@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 /* Wifi configuration */
-const char* WIFI_SSID = "Xiaomi 13T";           //"FAI'S EXAM 2.4GHz"
-const char* WIFI_PASSWORD = "88888888";  //"Fptacademy@2023"
+const char* WIFI_SSID = "BALOI";           //"FAI'S EXAM 2.4GHz"
+const char* WIFI_PASSWORD = "0909286456";  //"Fptacademy@2023"
 
 /* Thingsboards configuration */
 const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
@@ -179,6 +179,17 @@ void send_sample_dht_metrics() {
   //Serial.println("dht sent.");
 }
 
+void send_metrics(String m_key, String m_val) {
+  String payload = "{";
+    payload += "\"" + m_key;
+    payload += "\":";
+    payload += m_val;
+    payload += "}";
+    char telemetry[150];
+    payload.toCharArray(telemetry, 100);
+    client.publish("v1/devices/me/telemetry", telemetry);
+}
+
 /*
   8051 <-uart-> 8266 <-wifi-> Thingsboard MQTT
   Thingsboard MQTT: Attributes API & RPC API
@@ -252,7 +263,17 @@ void listen_on_uart_8051() {
   int incomingByte = 0;
   if (my_uart.available()) {
     Serial.print("Received from 8051 via UART: ");
-    Serial.print(my_uart.readString());
+
+    String str_rx = my_uart.readString();
+    String cmd = str_rx.substring(0, 3);
+    String val = str_rx.substring(4, 5);
+    
+    Serial.println("uart cmd: " + cmd);
+    if (cmd == "003:") {
+      send_metrics(HUMIDITY_KEY, val);
+      Serial.println("telemetry HUMIDITY_KEY was sent: " + cmd);
+    }
+
     // while (my_uart.available())
     // {
     //   Serial.print(" ");
