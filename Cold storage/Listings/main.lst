@@ -1,0 +1,282 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              10/15/2024 20:10:31 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: G:\Program\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<reg52.h> 
+   2          #include<stdio.h>
+   3          #include "utils.h"
+   4          #include "delay.h"
+   5          #include "I2C.h"
+   6          #include "eeprom.h"
+   7          #include "UART.h"
+   8          
+   9          #include "DataAccess.h"
+  10          #include "LCD8bit.h"
+  11          
+  12          
+  13          #include "LCD16x2_DHT11.h"
+  14          
+  15          // Control:
+  16          unsigned char    // gb: Global
+  17             gb_wm = 1,   // working mode
+  18            // gb_temp[2],  // temperature
+  19            // gb_hum[2],   // humidity
+  20          
+  21             // buf4[4],     // buffer size 2
+  22              buf16[16];   // bugger size 16, e.g.: for LCD, uart...
+  23          gb_i = 0;    // multi purposes, reset before using
+  24          char *ptr_buf16 = &buf16;
+  25          int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
+  26          
+  27          // include other libraries that need to use above defined variables   
+  28          
+  29          void set_sample_data()
+  30          {
+  31   1        // test set temperature
+  32   1        //clearLine(1);
+  33   1        //displayText("sample data: ");
+  34   1        DA_SetDevice1TurnOnAt("38");
+  35   1      
+  36   1        DA_SetDevice1TurnOffAt("32");
+  37   1      //  DA_SetTemperature("05");
+  38   1      //  DA_SetHumidity("35");
+  39   1        DA_SetDevice2TurnOnAt("21");
+  40   1        DA_SetDevice2TurnOffAt("24");
+  41   1        //displayText("ok");
+  42   1        //Delay_ms(ms2);
+  43   1        //clearLine(1);
+  44   1        FanT = 0; // Proteus 1 Light On
+  45   1        LedH = 0; // Kit 1 Light Off
+  46   1      }
+  47          
+  48          void init(void)
+  49          {
+  50   1        // LCD
+  51   1        initLCD();
+  52   1        
+  53   1        // Welcome
+  54   1      /*  setCursor(0, 0);
+C51 COMPILER V9.60.7.0   MAIN                                                              10/15/2024 20:10:31 PAGE 2   
+
+  55   1        displayText("Starting...");
+  56   1        
+  57   1        // Data Access
+  58   1        setCursor(0, 1);
+  59   1        displayText("Data: ");
+  60   1        EepromEraseAll();
+  61   1        DA_Init();
+  62   1        displayText("ok");
+  63   1        
+  64   1        Delay_ms(ms2);
+  65   1        clearLine(1);
+  66   1        */
+  67   1        // sample data for testing
+  68   1        set_sample_data();
+  69   1        
+  70   1        displayText("Mode: ");
+  71   1        gb_wm = DA_GetWorkingMode();
+  72   1        switch(gb_wm)
+  73   1        {
+  74   2        case '1':
+  75   2          displayText("auto");
+  76   2          break;
+  77   2        case '0':
+  78   2          displayText("manual");
+  79   2          break;
+  80   2        default:
+  81   2          displayChar(gb_wm);
+  82   2          Delay_ms(8);
+  83   2          displayText("NaN");
+  84   2          break;
+  85   2        }
+  86   1      
+  87   1        Delay_ms(ms2);
+  88   1        clearLine(1);
+  89   1        
+  90   1        // UART
+  91   1        displayText("UART: ");
+  92   1        UART_Init();
+  93   1        UART_TxString("hello uart 8051");
+  94   1        displayText("hello-2!");
+  95   1        
+  96   1        Delay_ms(ms2 * 2);
+  97   1      }
+  98          
+  99          
+ 100          void loop(void)
+ 101          {
+ 102   1        //char buf2[2];
+ 103   1        // 1. Refresh DHT11 sensor's data to eeprom
+ 104   1        Dht_Update();
+ 105   1        Delay_ms(ms2); //test
+ 106   1      
+ 107   1        // 2.1 Read temperature/humidity
+ 108   1        
+ 109   1      //  DA_GetHumidity(&gb_hum);
+ 110   1      
+ 111   1      //  memset(buf16, 0, 16);
+ 112   1      //  sprintf(buf16, "Mem-Hum=%s", gb_hum);
+ 113   1      //  clearLine(0);
+ 114   1      //  displayText(buf16);
+ 115   1        
+ 116   1       // DA_GetTemperature(&gb_temp);
+C51 COMPILER V9.60.7.0   MAIN                                                              10/15/2024 20:10:31 PAGE 3   
+
+ 117   1        //memset(buf16, 0, 16);
+ 118   1       // sprintf(buf16, "Mem-Tem=%s", gb_temp);
+ 119   1       // clearLine(1);
+ 120   1       // displayText(buf16);
+ 121   1      /*
+ 122   1        // 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
+ 123   1        // send humidity to uart
+ 124   1        memset(buf16, 0, 16);
+ 125   1        sprintf(buf16, "003:%s/", gb_hum);
+ 126   1        UART_Init();
+ 127   1        UART_TxStr(buf16, 7);
+ 128   1        Delay_ms(ms0);
+ 129   1      
+ 130   1        // send temerature to uart
+ 131   1        memset(buf16, 0, 16);
+ 132   1        sprintf(buf16, "004:%s/", gb_hum);
+ 133   1        UART_Init();
+ 134   1        UART_TxStr(buf16, 7);
+ 135   1        Delay_ms(ms2);
+ 136   1      */
+ 137   1        // 3.1 Read data configuration to control devices
+ 138   1        // cooling fan: On at moving to dht11
+ 139   1        
+ 140   1        /*
+ 141   1        clearLine(0);
+ 142   1        DA_GetDevice1TurnOnAt(&gb_d1on);
+ 143   1        memset(buf16, 0, 16);
+ 144   1        sprintf(buf16, "Fan Tem ON >= %s", gb_d1on);
+ 145   1        displayText(buf16);
+ 146   1        clearLine(1);
+ 147   1        // cooling fan: Off at
+ 148   1        DA_GetDevice1TurnOffAt(&gb_d1off);
+ 149   1        memset(buf16, 0, 16);
+ 150   1        sprintf(buf16, "       OFF <= %s", gb_d1off);
+ 151   1       
+ 152   1        displayText(buf16);
+ 153   1        Delay_ms(1000);
+ 154   1        */
+ 155   1        
+ 156   1        // Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
+ 157   1        clearLine(0);
+ 158   1        clearLine(1);
+ 159   1        displayText("+++");
+ 160   1        Delay_ms(ms2);
+ 161   1      
+ 162   1        // 4.1 UART-RX and proceed command if data is available
+ 163   1        /*
+ 164   1          gb_i = 0;
+ 165   1        if (1) // check if buffer is available
+ 166   1        {
+ 167   1        //  clearLine(0);
+ 168   1          displayText("RI:");
+ 169   1          displayChar(RI);
+ 170   1          
+ 171   1          UART_Init();
+ 172   1          gb_i = UART_RXString(ptr_buf16);
+ 173   1          Delay_ms(850);
+ 174   1        }
+ 175   1        
+ 176   1        clearLine(0);
+ 177   1        clearLine(1);
+ 178   1        displayText("---");
+C51 COMPILER V9.60.7.0   MAIN                                                              10/15/2024 20:10:31 PAGE 4   
+
+ 179   1      
+ 180   1        if (gb_i > 0)
+ 181   1        {
+ 182   1          // Identify the command
+ 183   1          memset(buf4, 0, 4);
+ 184   1          for (i = 0; i < 4; i++)
+ 185   1          {
+ 186   1            buf4[i] = buf16[i];
+ 187   1          }
+ 188   1          
+ 189   1          clearLine(0);
+ 190   1          displayText("UART-RX:");
+ 191   1          clearLine(1);
+ 192   1          displayText(&buf16);
+ 193   1          
+ 194   1          if (strcmp(buf4, "001:") == 0)
+ 195   1          {
+ 196   1            // 001: set working mode
+ 197   1            
+ 198   1            // update to eeprom
+ 199   1            gb_wm = buf16[4];
+ 200   1            DA_SetWorkingMode(gb_wm); // save to eeprom
+ 201   1            gb_wm = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
+ 202   1            
+ 203   1            // generate response
+ 204   1            stradd(ptr_buf16, "r01:", 0); // response
+ 205   1            stradd(ptr_buf16, &gb_wm, 4);
+ 206   1            //stradd(ptr_buf16, 'a', 5);
+ 207   1            
+ 208   1            // send reponse to confirm
+ 209   1            UART_Init();
+ 210   1            UART_TxStr(ptr_buf16, 5);
+ 211   1            
+ 212   1            //Delay_ms(ms2);
+ 213   1            //clearLine(1);
+ 214   1            //displayText("sent: 001:");
+ 215   1            //displayText(ptr_buf16);
+ 216   1            //Delay_ms(ms2);
+ 217   1          }
+ 218   1          else if (strcmp(cmd, "002:") == 0)
+ 219   1          {
+ 220   1            // 002: get working mode
+ 221   1            //gb_wm = DA_GetWorkingMode();
+ 222   1            
+ 223   1            // generate response
+ 224   1            stradd(ptr_buf16, "r02:", 0); // response
+ 225   1            stradd(ptr_buf16, &gb_wm, 4);
+ 226   1            //stradd(ptr_buf16, 'a', 5);
+ 227   1            
+ 228   1            // send current working mode to uart
+ 229   1            UART_Init();
+ 230   1            UART_TxString(ptr_buf16);
+ 231   1          }
+ 232   1          
+ 233   1          Delay_ms(ms0);
+ 234   1          //clearLine(1);
+ 235   1        }
+ 236   1      
+ 237   1        
+ 238   1        Delay_ms(ms2);  */
+ 239   1      }
+ 240          
+C51 COMPILER V9.60.7.0   MAIN                                                              10/15/2024 20:10:31 PAGE 5   
+
+ 241          
+ 242          void main (void)
+ 243          {
+ 244   1        init();
+ 245   1        while(1)
+ 246   1        {
+ 247   2          loop(); 
+ 248   2        };
+ 249   1      }
+*** WARNING C316 IN LINE 249 OF main.c: unterminated conditionals
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2168    ----
+   CONSTANT SIZE    =    144    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     46      72
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
