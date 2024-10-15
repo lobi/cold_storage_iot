@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 /* Wifi configuration */
-const char* WIFI_SSID = "BALOI";           //"FAI'S EXAM 2.4GHz"
-const char* WIFI_PASSWORD = "0909286456";  //"Fptacademy@2023"
+const char* WIFI_SSID = "Lobi-iphone-11";           //"FAI'S EXAM 2.4GHz"
+const char* WIFI_PASSWORD = "lobicula";  //"Fptacademy@2023"
 
 /* Thingsboards configuration */
 const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
@@ -186,6 +186,7 @@ void send_metrics(String m_key, String m_val) {
     payload += m_val;
     payload += "}";
     char telemetry[150];
+    Serial.println("sending metric...");
     payload.toCharArray(telemetry, 100);
     client.publish("v1/devices/me/telemetry", telemetry);
 }
@@ -265,34 +266,53 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
 
 // Listen to 8051 (UART - RX)
 void listen_on_uart_8051() {
+  String arr_msg[5];
+  char buff[120];
+  int i_msg_counter = 0;
+  int i = 0;
+
   int incomingByte = 0;
   if (my_uart.available()) {
     Serial.print("Received from 8051 via UART: ");
 
     String str_rx = my_uart.readString();
-    String cmd = str_rx.substring(0, 3);
+    String cmd = str_rx.substring(0, 4);
     String val = str_rx.substring(4, str_rx.length());
     
     Serial.println("uart cmd: " + cmd);
     if (cmd == "002:") {
       send_attribute("setControlMode", val + ".0");
-      Serial.println("telemetry HUMIDITY_KEY was sent: " + cmd);
+      Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
     }
     else if (cmd == "003:") {
       send_metrics(HUMIDITY_KEY, val);
-      Serial.println("telemetry HUMIDITY_KEY was sent: " + cmd);
+      Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
     }
     else if (cmd == "004:") {
       send_metrics(TEMPERATURE_KEY, val);
-      Serial.println("telemetry TEMPERATURE_KEY was sent: " + cmd);
+      Serial.println("telemetry TEMPERATURE_KEY was sent: " + val);
     }
 
-    // while (my_uart.available())
-    // {
-    //   Serial.print(" ");
-    //   Serial.print(my_uart.read());
-    // }
-    // Serial.println("");
+    while (my_uart.available() && i < 120)
+    {
+      buff[i] = my_uart.read();
+      i++;
+    }
+
+    String uart_msg = "";
+    for (i = 0; buff[i] != '\0' && i < 120; i++) {
+      uart_msg += buff[i];
+      if (buff[i] == '/' || buff[i] == '\n') {
+        // end of string
+      }
+      else {
+        continue;
+      }
+
+      
+    }
+
+    Serial.println("");
   }
 }
 

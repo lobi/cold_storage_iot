@@ -250,13 +250,13 @@ void loop(void)
     // 3.1 Read data configuration to control devices
 	// cooling fan: On at
 	DA_GetDevice1TurnOnAt(&buf2);
-  memset(buf16, 0, 16);
+  //memset(buf16, 0, 16);
   sprintf(buf16, "Mem-d1on=%s", buf2);
   clearLine(0);
   displayText(buf16);
   // cooling fan: Off at
   DA_GetDevice1TurnOffAt(&buf2);
-  memset(buf16, 0, 16);
+  //memset(buf16, 0, 16);
   sprintf(buf16, "Mem-d1off=%s", buf2);
   clearLine(1);
   displayText(buf16);
