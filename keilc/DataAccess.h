@@ -42,7 +42,7 @@ void DA_GetValue(unsigned char *ptr, int addr, int size)
   for (i = 0; i < size; i++)
   {
     ptr[i] = EepromReadByte(addr, 0);
-    Delay_ms(4);
+    //Delay_ms(4);
     addr++;
   }
 }
@@ -52,14 +52,14 @@ void DA_GetHumidity(unsigned char *pointer)
   DA_GetValue(pointer, 7, 2);
 }
 
-void DA_SetHumidity(unsigned char *pointer)
+void DA_SetHumidity(unsigned char *pth)
 {
-	DA_SetValue(pointer, 7, 2);
+	DA_SetValue(pth, 7, 2);
 }
 
-void DA_GetTemperature(unsigned char *pointer)
+void DA_GetTemperature(unsigned char *ptt)
 {
-  DA_GetValue(pointer, 5, 2);
+  DA_GetValue(ptt, 5, 2);
 }
 
 void DA_SetTemperature(unsigned char *pointer)
@@ -148,15 +148,15 @@ void DA_Init()
 	{
 		// set default value
 		DA_SetWorkingMode('1');
-
+    Delay_ms(4);
     DA_SetDevice1TurnOnAt("06");
     DA_SetDevice1TurnOffAt("01");
     DA_SetDevice1State('0');
-
+    Delay_ms(4);
     DA_SetDevice2TurnOnAt("15");
     DA_SetDevice2TurnOffAt("50");  
     DA_SetDevice2State('0');
-
+    Delay_ms(4);
     DA_SetTemperature("05");
     DA_SetHumidity("35"); 
 	}

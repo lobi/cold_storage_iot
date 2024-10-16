@@ -63,8 +63,8 @@ void send_metrics(void)
   DA_GetHumidity(sh); // retrieve data from eeprom
   UART_Init();
   UART_TxStr("003:", 4); // not work on kit
-  UART_TxString(sh); // hard code for testing
-  Delay_ms(ms0);
+  UART_TxString(sh);
+  //Delay_ms(ms1);
 
   //Delay_ms(ms1);
 
@@ -75,7 +75,7 @@ void send_metrics(void)
   Delay_ms(ms1);
   UART_Init();
   UART_TxStr("004:", 4); // not work on kit
-  UART_TxString(st); // hard code for testing
+  UART_TxString(st);
   //Delay_ms(ms0);
 
   // lcd for testing
@@ -438,7 +438,7 @@ void loop(void)
   //strrst(buf16, 16);
   //char buf2[2];
   // 1. Refresh DHT11 sensor's data to eeprom
-  //Dht_Update();
+  Dht_Update();
 
   // 2.1 Read temperature/humidity
   send_metrics();
@@ -447,7 +447,7 @@ void loop(void)
   //UART-RX and proceed command if data is available
   urx();
   
-  Delay_ms(ms2);
+  Delay_ms(ms1);
 }
 
 
