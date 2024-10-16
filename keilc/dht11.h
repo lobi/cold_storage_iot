@@ -78,44 +78,43 @@ void Dht_Update()
     return;
   }
 
-  clearLine(0);
-  displayText("Sensor reading");
+  // clearLine(0);
+  // displayText("Sensor reading");
 
-  if (I_RH > 9)
-  {
-    EepromWriteByte(I_RH/10, 7, 0);
-    Delay_ms(4);
-    EepromWriteByte(I_RH%10, 8, 0);
-  }
-  else
-  {
-    EepromWriteByte('0', 5, 0);
-    Delay_ms(4);
-    EepromWriteByte(I_RH, 6, 0);
-  }
+  // if (I_RH > 9)
+  // {
+  //   EepromWriteByte(I_RH/10, 7, 0);
+  //   Delay_ms(4);
+  //   EepromWriteByte(I_RH%10, 8, 0);
+  // }
+  // else
+  // {
+  //   EepromWriteByte('0', 5, 0);
+  //   Delay_ms(4);
+  //   EepromWriteByte(I_RH, 6, 0);
+  // }
   //strrst(buf2, 2);
   //sscanf(buf2, "%02d", I_RH);
   //DA_SetHumidity(buf2);
-  //DA_SetHumidity("22");
+  DA_SetHumidity("22");
   Delay_ms(4);
 
-  if (I_Temp > 9)
-  {
-    EepromWriteByte(I_Temp/10, 7, 0);
-    Delay_ms(4);
-    EepromWriteByte(I_Temp%10, 8, 0);
-  }
-  else
-  {
-    EepromWriteByte('0', 5, 0);
-    Delay_ms(4);
-    EepromWriteByte(I_Temp, 6, 0);
-  }
+  // if (I_Temp > 9)
+  // {
+  //   EepromWriteByte(I_Temp/10, 7, 0);
+  //   Delay_ms(4);
+  //   EepromWriteByte(I_Temp%10, 8, 0);
+  // }
+  // else
+  // {
+  //   EepromWriteByte('0', 5, 0);
+  //   Delay_ms(4);
+  //   EepromWriteByte(I_Temp, 6, 0);
+  // }
   //strrst(buf2, 2);
   //sscanf(buf2, "%02d", I_Temp);
   //DA_SetTemperature(buf2);
-  //DA_SetTemperature("11");
-
+  DA_SetTemperature("11");
 }
 
 
