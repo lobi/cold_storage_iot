@@ -289,21 +289,21 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
   }
   else if (methodName.equals("getDevice2OffAt")) {
     send_to_uart_8051("012", "2");
-    rpc_010_topic = String(topic);
+    rpc_012_topic = String(topic);
   }
   else if (methodName.equals("setDevice1State")) {
     send_to_uart_8051("013", doc["params"] ? "1" : "0");
   }
-  else if (methodName.equals("getDevice2OffAt")) {
+  else if (methodName.equals("getDevice1State")) {
     send_to_uart_8051("014", "2");
-    rpc_010_topic = String(topic);
+    rpc_014_topic = String(topic);
   }
   else if (methodName.equals("setDevice2State")) {
     send_to_uart_8051("015", doc["params"] ? "1" : "0");
   }
   else if (methodName.equals("getDevice2State")) {
     send_to_uart_8051("016", "2");
-    rpc_010_topic = String(topic);
+    rpc_016_topic = String(topic);
   }
 }
 
@@ -356,19 +356,19 @@ void listen_on_uart_8051() {
         send_metrics(TEMPERATURE_KEY, val);
         Serial.println("telemetry TEMPERATURE_KEY was sent: " + val);
       } else if (cmd == "006:") {
-        response_rpc(rpc_006_topic, val);
+        response_rpc(rpc_006_topic, String(val.toInt()));
         Serial.print("response rpc topic: " + rpc_006_topic);
         Serial.println(". val: " + val);
       } else if (cmd == "008:") {
-        response_rpc(rpc_008_topic, val);
+        response_rpc(rpc_008_topic, String(val.toInt()));
         Serial.print("response rpc topic: " + rpc_008_topic);
         Serial.println(". val: " + val);
       } else if (cmd == "010:") {
-        response_rpc(rpc_010_topic, val);
+        response_rpc(rpc_010_topic, String(val.toInt()));
         Serial.print("response rpc topic: " + rpc_010_topic);
         Serial.println(". val: " + val);
       } else if (cmd == "012:") {
-        response_rpc(rpc_012_topic, val);
+        response_rpc(rpc_012_topic, String(val.toInt()));
         Serial.print("response rpc topic: " + rpc_012_topic);
         Serial.println(". val: " + val);
       } else if (cmd == "014:") {

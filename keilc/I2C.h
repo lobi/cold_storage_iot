@@ -98,7 +98,7 @@ void I2CSendString(unsigned char addr, unsigned char *s)
   I2CStop();
 }
 */
-
+/*
 unsigned char I2CReadString(unsigned char addr)
 {
   unsigned char i;
@@ -114,5 +114,5 @@ unsigned char I2CReadString(unsigned char addr)
   I2CStop();
   return rec;
 }
-
+*/
 #endif

@@ -1,5 +1,5 @@
 sbit DHT11 = P1^7; /* Connect DHT11 Sensor Pin to P2.1 Pin */
-char I_RH, D_RH, I_Temp, D_Temp, CheckSum;
+int I_RH, D_RH, I_Temp, D_Temp, CheckSum;
 
 void timer_delay20ms()		/* Timer0 delay function */
 {
@@ -60,6 +60,8 @@ save to eeprom
 */
 void Dht_Update()
 {
+  unsigned char st[2] = {'\0', '\0'};
+  unsigned char sh[2] = {'\0', '\0'};
   Dht_Rqst();  /* send start pulse */
   Dht_Rspn(); /* receive response */
 	
@@ -76,35 +78,44 @@ void Dht_Update()
     return;
   }
 
-  
-  //sprintf(buff2, "%ld", I_Temp);
-  //sprintf(buff2, sizeof(crrt), "%2d", I_RH);
-  
-  //sprintf(buf2, "%d", I_RH);
-  strrst(buf2, 2);
-  DA_SetHumidity(buf2);
-  //clearLine(0);
-  //memset(buf16, 0, 16);
-  //sprintf(buf16, "Hum=%d.%d", I_RH, D_RH);
-  //displayText(buf16);
+  clearLine(0);
+  displayText("Sensor reading");
 
-  //sprintf(buf2, "%d", I_Temp);
-  strrst(buf2, 2);
-  DA_SetTemperature(buf2);
-  // clearLine(1);
-  // memset(buf16, 0, 16);
-  // sprintf(buf16, "Tem=%d.%d", I_Temp, D_Temp);
-  // displayText(buf16);
+  if (I_RH > 9)
+  {
+    EepromWriteByte(I_RH/10, 7, 0);
+    Delay_ms(4);
+    EepromWriteByte(I_RH%10, 8, 0);
+  }
+  else
+  {
+    EepromWriteByte('0', 5, 0);
+    Delay_ms(4);
+    EepromWriteByte(I_RH, 6, 0);
+  }
+  //strrst(buf2, 2);
+  //sscanf(buf2, "%02d", I_RH);
+  //DA_SetHumidity(buf2);
+  //DA_SetHumidity("22");
+  Delay_ms(4);
 
-  // memset(buf16, 0, 16);
-  // sprintf(buf16, "-%d", CheckSum);
-  // displayText(buf16);
-  
-  // Delay_ms(100);
+  if (I_Temp > 9)
+  {
+    EepromWriteByte(I_Temp/10, 7, 0);
+    Delay_ms(4);
+    EepromWriteByte(I_Temp%10, 8, 0);
+  }
+  else
+  {
+    EepromWriteByte('0', 5, 0);
+    Delay_ms(4);
+    EepromWriteByte(I_Temp, 6, 0);
+  }
+  //strrst(buf2, 2);
+  //sscanf(buf2, "%02d", I_Temp);
+  //DA_SetTemperature(buf2);
+  //DA_SetTemperature("11");
 
-  // validate to make sure it saved
-  //DA_GetHumidity(&crrt_hum);
-  //DA_GetTemperature(&ccrt_tem);
 }
 
 

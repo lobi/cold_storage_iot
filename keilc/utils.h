@@ -1,9 +1,10 @@
-void stradd(unsigned char *dest, unsigned char *src, unsigned int pos, unsigned int size)
+void stradd(unsigned char *dest, unsigned char *src, int pos, int size)
 {
-  int i = 0;
-  for (i = pos; i < size; i++)
+  int i;
+  for (i = 0; i < size; i++)
   {
-    dest[i] = src[i];
+    dest[pos] = src[i];
+    pos++;
   }
 }
 
