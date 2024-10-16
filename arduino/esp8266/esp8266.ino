@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 /* Wifi configuration */
-const char* WIFI_SSID = "Lobi-iphone-11";           //"FAI'S EXAM 2.4GHz"
-const char* WIFI_PASSWORD = "lobicula";  //"Fptacademy@2023"
+const char* WIFI_SSID = "BALOI";           //"FAI'S EXAM 2.4GHz"
+const char* WIFI_PASSWORD = "0909286456";  //"Fptacademy@2023"
 
 /* Thingsboards configuration */
 const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
@@ -47,7 +47,7 @@ uint32_t delayMS;
 
 /* Generaal configuration */
 constexpr uint32_t SERIAL_DEBUG_BAUD = 115200U;
-
+String rpc_002_topic;
 
 void init_wifi() {
   Serial.println("Connecting to AP ...");
@@ -196,6 +196,12 @@ void send_attribute(String attr, String val) {
   client.publish("v1/devices/me/attributes", msg.c_str());
 }
 
+void response_rpc(String topic, String val) {
+  String responseTopic = topic;
+  responseTopic.replace("request", "response");
+  client.publish(responseTopic.c_str(), val.c_str());
+}
+
 /*
   8051 <-uart-> 8266 <-wifi-> Thingsboard MQTT
   Thingsboard MQTT: Attributes API & RPC API
@@ -242,74 +248,66 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
   Serial.println(methodName);
 
   if (methodName.equals("setControlMode")) {
-    // Reply with GPIO status
-    //String responseTopic = String(topic);
-    //responseTopic.replace("request", "response");
-    //client.publish(responseTopic.c_str(), get_gpio_status().c_str());
-
-    char params = doc["params"] ? '1' : '0';
-    //String params = doc["params"];
-    send_to_uart_8051("001", &params, 1);
+    send_to_uart_8051("001", doc["params"] ? "1" : "0");
   } else if (methodName.equals("getControlMode")) {
-    // Update GPIO status and reply
-    //set_gpio_status(data["params"]["pin"], data["params"]["enabled"]);
-    //String responseTopic = String(topic);
-    //responseTopic.replace("request", "response");
-    //client.publish(responseTopic.c_str(), get_gpio_status().c_str());
-    //client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
-
-    // send command to 8015. the response & action from  8051 will proceed in listen_on_uart_8051()
-    char params = ' ';
-    send_to_uart_8051("002", &params, 1);
+    send_to_uart_8051("002", "2");
+    rpc_002_topic = String(topic);
   }
 }
 
 // Listen to 8051 (UART - RX)
 void listen_on_uart_8051() {
-  String arr_msg[5];
-  char buff[120];
-  int i_msg_counter = 0;
-  int i = 0;
+  int buff_size = 70;
+  char buff[buff_size];
+  String str_rx;
+  int i = 0; // buffer index
 
   int incomingByte = 0;
   if (my_uart.available()) {
-    Serial.print("Received from 8051 via UART: ");
+    Serial.print("\nReceiving from UART... ");
 
-    String str_rx = my_uart.readString();
-    String cmd = str_rx.substring(0, 4);
-    String val = str_rx.substring(4, str_rx.length());
-    
-    Serial.println("uart cmd: " + cmd);
-    if (cmd == "002:") {
-      send_attribute("setControlMode", val + ".0");
-      Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
-    }
-    else if (cmd == "003:") {
-      send_metrics(HUMIDITY_KEY, val);
-      Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
-    }
-    else if (cmd == "004:") {
-      send_metrics(TEMPERATURE_KEY, val);
-      Serial.println("telemetry TEMPERATURE_KEY was sent: " + val);
-    }
-
-    while (my_uart.available() && i < 120)
+    // Receive all arrived chars.
+    // Use my_uart.read() will faster than my_uart.readString() a lot, it will
+    // reduce the issue loss message when transmit/receive multiple messages via UART
+    while (my_uart.available() && i < buff_size)
     {
       buff[i] = my_uart.read();
+      Serial.print(buff[i]);
       i++;
     }
-
-    String uart_msg = "";
-    for (i = 0; buff[i] != '\0' && i < 120; i++) {
-      uart_msg += buff[i];
+    Serial.println(". done!");
+    
+    // identify each message, then proceed with thingsboard
+    for (i = 0; buff[i] != '\0' && i < buff_size; i++) {
       if (buff[i] == '/' || buff[i] == '\n') {
         // end of string
       }
       else {
+        str_rx += buff[i];
         continue;
       }
 
-      
+      // A new uart rx string arrived, let proceed
+      String cmd = str_rx.substring(0, 4);
+      String val = str_rx.substring(4, str_rx.length());
+
+      Serial.println("uart cmd: " + cmd);
+      if (cmd == "002:") {
+        //send_attribute("getControlMode", val + ".0");
+        response_rpc(rpc_002_topic, val);
+        Serial.println("response rpc topic: " + rpc_002_topic);
+        Serial.print(". val: " + val);
+      } else if (cmd == "003:") {
+        send_metrics(HUMIDITY_KEY, val);
+        Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
+      } else if (cmd == "004:") {
+        send_metrics(TEMPERATURE_KEY, val);
+        Serial.println("telemetry TEMPERATURE_KEY was sent: " + val);
+      }
+
+
+      // reset the message
+      str_rx = "";
     }
 
     Serial.println("");
@@ -318,16 +316,13 @@ void listen_on_uart_8051() {
 
 
 // Send data to 8051 (UART - TX)
-void send_to_uart_8051(const char* method, char* data, unsigned int length) {
-  //if (method == "001") {
-  // 001: setControlMode
-
-  // 100: for method, 2: for 2 other characters[':', '/']
-  int payload_length = 100 + length + 2;
+void send_to_uart_8051(String method, String val) {
+  // 3: for [':', '/', '\n']
+  int payload_length = method.length() + val.length() + 3; 
 
   String payload = method;
   payload += ":";
-  payload += data;
+  payload += val;
   payload += "/";  // ending indicator
 
   Serial.print("sending to uart... ");

@@ -33,6 +33,7 @@ void UART_TxString(char *str)
 	{
 		UART_TxChar(str[i]);	/* Call transmit data function */
 	}
+	UART_TxChar('/');// also send the indicator of ending
 }
 
 void UART_TxStr(char *pointer, int length)

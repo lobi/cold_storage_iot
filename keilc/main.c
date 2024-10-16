@@ -64,7 +64,7 @@ void send_metrics(void)
   stradd(buf16, buf2, 4, 2);
   UART_Init();
   //UART_TxStr(buf16, 6); // not work on kit
-  UART_TxString("003:32\n"); // hard code for testing
+  UART_TxString("003:32"); // hard code for testing
 
   Delay_ms(ms1);
 
@@ -78,7 +78,7 @@ void send_metrics(void)
   stradd(buf16, buf2, 4, 2);
   UART_Init();
   //UART_TxStr(buf16, 6); // not work on kit
-  UART_TxString("004:03\n"); // hard code for testing
+  UART_TxString("004:03"); // hard code for testing
   Delay_ms(ms0);
 
   // lcd for testing
@@ -211,7 +211,7 @@ void urx()
   clearLine(0);
   displayText("RX...");
   
-  while (icount < 3)
+  while (icount < 7)
   {
     Delay_ms(ms0);
     strrst(buf16, 16);
