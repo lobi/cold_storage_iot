@@ -406,6 +406,21 @@
               <FileType>5</FileType>
               <FilePath>.\UART.h</FilePath>
             </File>
+            <File>
+              <FileName>utils.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\utils.h</FilePath>
+            </File>
+            <File>
+              <FileName>dht11.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\dht11.h</FilePath>
+            </File>
+            <File>
+              <FileName>LCD16x2_DHT11.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\LCD16x2_DHT11.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

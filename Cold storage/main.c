@@ -1,57 +1,108 @@
-#include<reg52.h> 
-#include<stdio.h>
+#include <reg52.h> 
+//#include <reg51.h>
+//#include <REGX51.H>
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "utils.h"
 #include "delay.h"
 #include "I2C.h"
 #include "eeprom.h"
-#include "UART.h"
-
-#include "DataAccess.h"
 #include "LCD8bit.h"
+sbit LED1 = P1 ^ 6;
+sbit LED2 = P1 ^ 5;
+#include "UART.h"
+#include "DataAccess.h"
 
 
-#include "LCD16x2_DHT11.h"
 
 // Control:
 unsigned char    // gb: Global
-   gb_wm = 1,   // working mode
-  // gb_temp[2],  // temperature
-  // gb_hum[2],   // humidity
-
-   // buf4[4],     // buffer size 2
-    buf16[16];   // bugger size 16, e.g.: for LCD, uart...
-gb_i = 0;    // multi purposes, reset before using
-char *ptr_buf16 = &buf16;
+    //gb_wm = 1,   // working mode
+    //gb_temp[2],  // temperature
+    //gb_hum[2],   // humidity
+    //gb_d1on[2],  // device 1 turn on at
+    //gb_d1off[2], // device 1 turn off at
+    //db_d2on[2],  // device 2 turn on at
+    //gb_d2off[2], // device 2 turn off at
+    buf2[] = {0, 0},     // buffer size 2
+    //buf4[4],     // buffer size 4
+    //buf5[5],     // buffer size 5
+    buf16[16],   // buffer size 16, e.g.: for LCD, uart...
+    gb_i = 0;    // multi purposes, reset before using
 int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
+// include other libraries that need to use above defined variables
 
-// include other libraries that need to use above defined variables   
+//#include "dht11.h"
+//#include "LCD16x2_DHT11.h"
 
-void set_sample_data()
+// void set_sample_data()
+// {
+// 	DA_SetDevice1TurnOnAt("06");
+// 	DA_SetDevice1TurnOffAt("01");
+//   DA_SetDevice1State("0");
+
+//   DA_SetDevice2TurnOnAt("15");
+//   DA_SetDevice2TurnOffAt("50");  
+//   DA_SetDevice2State("0");
+
+// 	DA_SetTemperature("05");
+// 	DA_SetHumidity("35"); 
+// }
+
+void send_metrics(void)
 {
-	// test set temperature
-	//clearLine(1);
-	//displayText("sample data: ");
-	DA_SetDevice1TurnOnAt("38");
+  char sh[2] = {'\0', '\0'};
+  char st[2] = {'\0', '\0'};
 
-	DA_SetDevice1TurnOffAt("32");
-//	DA_SetTemperature("05");
-//	DA_SetHumidity("35");
-	DA_SetDevice2TurnOnAt("21");
-	DA_SetDevice2TurnOffAt("24");
-	//displayText("ok");
-	//Delay_ms(ms2);
-	//clearLine(1);
-	FanT = 0; // Proteus 1 Light On
-	LedH = 0;	// Kit 1 Light Off
+  // send humidity
+  Delay_ms(ms0);
+  //strrst(buf2, 2);
+  DA_GetHumidity(sh); // retrieve data from eeprom
+  UART_Init();
+  UART_TxStr("003:", 4); // not work on kit
+  UART_TxString(sh); // hard code for testing
+  Delay_ms(ms0);
+
+  //Delay_ms(ms1);
+
+  // send temperature
+  //Delay_ms(ms2);
+  strrst(st, 2);
+  DA_GetTemperature(st); // retrieve data from eeprom
+  Delay_ms(ms1);
+  UART_Init();
+  UART_TxStr("004:", 4); // not work on kit
+  UART_TxString(st); // hard code for testing
+  //Delay_ms(ms0);
+
+  // lcd for testing
+  clearLine(0);
+  displayText("Mem-Hum:");
+  DA_GetHumidity(buf2);
+  displayText(buf2);
+  clearLine(1);
+  displayText("Mem-Tem:");
+  DA_GetTemperature(buf2);
+  displayText(buf2);
+  Delay_ms(ms2);
+
+  Delay_ms(ms1);
 }
 
 void init(void)
 {
-	// LCD
+  volatile unsigned char wm = '1'; // default: auto
+  LED1 = 0;
+  LED2 = 0;
+
+  // LCD
 	initLCD();
 	
 	// Welcome
-/*	setCursor(0, 0);
+	setCursor(0, 0);
 	displayText("Starting...");
 	
 	// Data Access
@@ -63,13 +114,13 @@ void init(void)
 	
 	Delay_ms(ms2);
 	clearLine(1);
-	*/
+	
 	// sample data for testing
-	set_sample_data();
+	//set_sample_data();
 	
 	displayText("Mode: ");
-	gb_wm = DA_GetWorkingMode();
-	switch(gb_wm)
+	wm = DA_GetWorkingMode();
+	switch(wm)
   {
   case '1':
     displayText("auto");
@@ -78,7 +129,7 @@ void init(void)
     displayText("manual");
     break;
   default:
-    displayChar(gb_wm);
+    displayChar(wm);
     Delay_ms(8);
     displayText("NaN");
     break;
@@ -89,161 +140,323 @@ void init(void)
 	
 	// UART
 	displayText("UART: ");
-	UART_Init();
-	UART_TxString("hello uart 8051");
+  UART_Init();
+  //Ext_int_Init(); // enable uart serial interrupt
+  //Timer0_Init();  // init timer 0
+
+  //UART_TxString("hello uart 8051");
 	displayText("hello-2!");
 	
 	Delay_ms(ms2 * 2);
 }
 
+void on_rx(unsigned char *prt)
+{
+  unsigned char rxcmd[] = {0, 0, 0, 0};
+  volatile char txs[6] = {0, 0, 0, 0, 0, 0};
+  unsigned char wm = '0';
 
+  strrst(rxcmd, 4);
+  strc(rxcmd, prt, 4);
+
+  clearLine(1);
+  displayText(prt);
+  if (strcmp(rxcmd, "001:") == 0)
+  {
+    LED2 = 1;
+    // 001: set working mode
+    
+    // update to eeprom
+    DA_SetWorkingMode(prt[4]);
+    Delay_ms(4);
+
+    // generate response content
+    stradd(txs, "001:", 0, 4);
+    txs[4] = DA_GetWorkingMode();
+    Delay_ms(4);
+
+    // response to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "002:") == 0)
+  {
+    LED2 = 1;
+    // 002: get working mode
+
+    // generate response content
+    stradd(txs, "002:", 0, 4);
+    txs[4] = DA_GetWorkingMode();
+    Delay_ms(ms0);
+
+    // send to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "005:") == 0)
+  {
+    // 005: setDevice1OnAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice1TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("005:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "006:") == 0)
+  {
+    // 006: getDevice1OnAt
+    LED2 = 1;
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("006:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "007:") == 0)
+  {
+    // 007: setDevice1OffAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice1TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("007:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "008:") == 0)
+  {
+    // 008: getDevice1OffAt
+    LED2 = 1;
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("008:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "009:") == 0)
+  {
+    // 009: setDevice2OnAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice2TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("009:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "010:") == 0)
+  {
+    // 010: getDevice2OnAt
+    LED2 = 1;
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("010:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "011:") == 0)
+  {
+    // 011: setDevice2OffAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice2TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("011:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "012:") == 0)
+  {
+    // 012: getDevice2OffAt
+    LED2 = 1;
+    // generate response content
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxStr("012:", 4);
+    UART_TxString(buf2);
+  }
+  else if (strcmp(rxcmd, "013:") == 0)
+  {
+    LED2 = 1;
+    // 013: setDevice1State
+    
+    // update to eeprom
+    DA_SetDevice1State(prt[4]);
+    Delay_ms(4);
+
+    // generate response content
+    stradd(txs, "013:", 0, 4);
+    txs[4] = DA_GetDevice1State();
+    Delay_ms(4);
+
+    // response to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "014:") == 0)
+  {
+    LED2 = 1;
+    // 014: getDevice1State
+
+    // generate response content
+    stradd(txs, "014:", 0, 4);
+    txs[4] = DA_GetDevice1State();
+    Delay_ms(ms0);
+
+    // send to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "015:") == 0)
+  {
+    LED2 = 1;
+    // 015: setDevice2State
+    
+    // update to eeprom
+    DA_SetDevice2State(prt[4]);
+    Delay_ms(4);
+
+    // generate response content
+    stradd(txs, "015:", 0, 4);
+    txs[4] = DA_GetDevice2State();
+    Delay_ms(4);
+
+    // response to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "016:") == 0)
+  {
+    LED2 = 1;
+    // 016: getDevice2State
+
+    // generate response content
+    stradd(txs, "016:", 0, 4);
+    txs[4] = DA_GetDevice2State();
+    Delay_ms(ms0);
+
+    // send to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+
+  Delay_ms(ms2); // to have enough time to see the LED turn on
+  LED2 = 0;
+  LED1 = 0;
+  //clearLine(1);
+}
+
+void urx()
+{
+  int icount = 0;
+  LED1 = 0;
+  LED2 = 0;
+  
+
+  clearLine(0);
+  displayText("RX...");
+  clearLine(1);
+  
+  while (icount < 7) // 7: we have 7 requests from thingsboards to get device's states
+  {
+    Delay_ms(ms1);
+    strrst(buf16, 16);
+    gb_i = 0;
+    UART_Init();
+    gb_i = UART_RXString(buf16);
+    if (gb_i > 0)
+    {
+      LED1 = 1;
+      on_rx(buf16);
+      icount++;
+    }
+  }
+
+  LED1 = 0;
+}
+
+/*
+Flow:
+	- 1. Refresh DHT11 sensor's data to eeprom
+	- 2. Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
+	- 3. Control devices base on eeprom data
+	- 4. UART-RX and proceed command if data is available
+*/
 void loop(void)
 {
+  LED1 = 0;
+  //strrst(buf16, 16);
   //char buf2[2];
   // 1. Refresh DHT11 sensor's data to eeprom
   Dht_Update();
-  Delay_ms(ms2); //test
 
   // 2.1 Read temperature/humidity
-	
-//  DA_GetHumidity(&gb_hum);
-
-//  memset(buf16, 0, 16);
-//  sprintf(buf16, "Mem-Hum=%s", gb_hum);
-//  clearLine(0);
-//  displayText(buf16);
-	
- // DA_GetTemperature(&gb_temp);
-  //memset(buf16, 0, 16);
- // sprintf(buf16, "Mem-Tem=%s", gb_temp);
- // clearLine(1);
- // displayText(buf16);
-/*
-  // 2.2 Send temperature/humidity to 8266(thingsboard) via UART-TX
-  // send humidity to uart
-  memset(buf16, 0, 16);
-  sprintf(buf16, "003:%s/", gb_hum);
-  UART_Init();
-  UART_TxStr(buf16, 7);
+  send_metrics();
   Delay_ms(ms0);
-
-  // send temerature to uart
-  memset(buf16, 0, 16);
-  sprintf(buf16, "004:%s/", gb_hum);
-  UART_Init();
-  UART_TxStr(buf16, 7);
-  Delay_ms(ms2);
-*/
-  // 3.1 Read data configuration to control devices
-	// cooling fan: On at moving to dht11
 	
-	/*
-	clearLine(0);
-	DA_GetDevice1TurnOnAt(&gb_d1on);
-  memset(buf16, 0, 16);
-  sprintf(buf16, "Fan Tem ON >= %s", gb_d1on);
-  displayText(buf16);
-	clearLine(1);
-  // cooling fan: Off at
-  DA_GetDevice1TurnOffAt(&gb_d1off);
-  memset(buf16, 0, 16);
-  sprintf(buf16, "       OFF <= %s", gb_d1off);
- 
-  displayText(buf16);
-  Delay_ms(1000);
-	*/
-	
-	// Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
-	clearLine(0);
-  clearLine(1);
-  displayText("+++");
-  Delay_ms(ms2);
-
-  // 4.1 UART-RX and proceed command if data is available
-	/*
-    gb_i = 0;
-  if (1) // check if buffer is available
-  {
-  //  clearLine(0);
-    displayText("RI:");
-    displayChar(RI);
-    
-    UART_Init();
-    gb_i = UART_RXString(ptr_buf16);
-    Delay_ms(850);
-  }
-	
-  clearLine(0);
-  clearLine(1);
-  displayText("---");
-
-  if (gb_i > 0)
-	{
-		// Identify the command
-    memset(buf4, 0, 4);
-    for (i = 0; i < 4; i++)
-		{
-			buf4[i] = buf16[i];
-		}
-		
-		clearLine(0);
-		displayText("UART-RX:");
-		clearLine(1);
-		displayText(&buf16);
-		
-		if (strcmp(buf4, "001:") == 0)
-		{
-			// 001: set working mode
-			
-			// update to eeprom
-			gb_wm = buf16[4];
-			DA_SetWorkingMode(gb_wm); // save to eeprom
-			gb_wm = DA_GetWorkingMode(); // check again to make sure it saved to eeprom
-			
-			// generate response
-			stradd(ptr_buf16, "r01:", 0); // response
-			stradd(ptr_buf16, &gb_wm, 4);
-			//stradd(ptr_buf16, 'a', 5);
-			
-			// send reponse to confirm
-			UART_Init();
-			UART_TxStr(ptr_buf16, 5);
-			
-			//Delay_ms(ms2);
-			//clearLine(1);
-			//displayText("sent: 001:");
-			//displayText(ptr_buf16);
-			//Delay_ms(ms2);
-		}
-		else if (strcmp(cmd, "002:") == 0)
-		{
-			// 002: get working mode
-			//gb_wm = DA_GetWorkingMode();
-			
-			// generate response
-			stradd(ptr_buf16, "r02:", 0); // response
-			stradd(ptr_buf16, &gb_wm, 4);
-			//stradd(ptr_buf16, 'a', 5);
-			
-			// send current working mode to uart
-			UART_Init();
-			UART_TxString(ptr_buf16);
-		}
-		
-		Delay_ms(ms0);
-		//clearLine(1);
-	}
-
+  //UART-RX and proceed command if data is available
+  urx();
   
-  Delay_ms(ms2);  */
+  Delay_ms(ms2);
 }
 
 
-void main (void)
+
+void main(void)
 {
 	init();
 	while(1)
 	{
 		loop(); 
-	};
+	}
 }

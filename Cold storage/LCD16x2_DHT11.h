@@ -6,12 +6,12 @@
 #ifndef LCD16x2_DHT11
 #define LCD16x2_DHT11
 
-#include<reg52.h>
-#include<stdio.h>
-#include<string.h>
-#include <stdlib.h>
-#include "LCD8bit.h"
-#include "eeprom.h"
+//#include<reg52.h>
+//#include<stdio.h>
+//#include<string.h>
+//#include <stdlib.h>
+//#include "LCD8bit.h"
+//#include "eeprom.h"
 
 sbit DHT11=P1^7;		/* Connect DHT11 Sensor Pin to P2.2 Pin */
 sbit FanT=P2^3;	
@@ -21,9 +21,10 @@ int I_RH,D_RH,I_Temp,D_Temp,CheckSum;
 
 unsigned char   
 	gb_d1on[2],  // device 1 turn on at
-  gb_d1off[2], // device 1 turn off at  
-    buf2[2],     // buffer size 2
-    buf16[16];   // bugger size 16, e.g.: for LCD, uart...
+  gb_d1off[2];//, // device 1 turn off at  
+    //buf2[2],     // buffer size 2
+    //buf16[16]
+	//;   // bugger size 16, e.g.: for LCD, uart...
 
 void FanControl()
 {	
@@ -43,7 +44,7 @@ TestLed = 1;
 	//DA_GetDevice1TurnOnAt(&gb_d1on);
 	 EepromReadNBytes(3, gb_d1on, 2, 0);
   memset(buf16, 0, 16);
-  sprintf(buf16, "Fan TemON >= %d", atoi(gb_d1on));
+  sprintf(buf16, "Fan TemON >= %d", gb_d1on);
   displayText(buf16);
 	clearLine(1);
 	DA_GetDevice1TurnOffAt(&gb_d1off);

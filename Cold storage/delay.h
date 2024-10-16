@@ -1,16 +1,9 @@
-
 #ifndef __DELAY_H
 #define __DELAY_H
 
-
-
-
-
-
-
 void Delay_ms(long int k)
 {
-		int i;
+	int i;
 	TMOD=0X02;
 	TH0=0x00;
 	while(k!=0)
@@ -31,7 +24,7 @@ void Delay_us(long int k)
 	TR0=1;
 	while(!TF0);
 	TF0=0;
-}  
+}
 
 void delay(unsigned int count)    		
 {
@@ -39,7 +32,4 @@ void delay(unsigned int count)
 	for(i=0;i<count;i++)
 	for(j=0;j<112;j++);
 }
-
-
-
 #endif

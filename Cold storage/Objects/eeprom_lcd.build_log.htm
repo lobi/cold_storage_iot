@@ -5,11 +5,11 @@
 <h2>Tool Versions:</h2>
 IDE-Version: µVision V5.38.0.0
 Copyright (C) 2022 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Quan Nguyen, DS, LIC=03LZX-H7643-NYKV5-GZ5L0-VUYX9-4Q4GF
+License Information: Tam Nguyen, HP Inc., LIC=D0MW3-AKQZX-YIG5X-H94GZ-4TU5U-AF34E
  
 Tool Versions:
 Toolchain:       PK51 Prof. Developers Kit  Version: 9.60.7.0
-Toolchain Path:  G:\Program\Keil_v5\C51\BIN
+Toolchain Path:  C:\Keil_v5\C51\BIN
 C Compiler:      C51.exe V9.60.7.0
 Assembler:       A51.exe V8.2.7.0
 Linker/Locator:  BL51.exe V6.22.4.0
@@ -18,47 +18,29 @@ Hex Converter:   OH51.exe V2.7.0.0
 CPU DLL:         S8051.DLL V3.125.1.0
 Dialog DLL:      DP51.DLL V2.69.0.0 
 <h2>Project:</h2>
-E:\FPT Jecking\Class 1\12222\eeprom_lcd.uvproj
-Project File Date:  09/22/2024
+D:\ChipDesign\FptJetking\Semester1\ProjectSem1\Cold storage\eeprom_lcd.uvproj
+Project File Date:  10/16/2024
 
 <h2>Output:</h2>
-Rebuild target 'Target 1'
-assembling STARTUP.A51...
+Build target 'Target 1'
 compiling main.c...
-main.c(249): warning C316: unterminated conditionals
+main.c(462): warning C316: unterminated conditionals
 linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_STRADD?MAIN
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_EEPROMWRITENBYTES?MAIN
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_EEPROMERASEPAGE?MAIN
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?EEPROMERASEALL?MAIN
+    SEGMENT: ?PR?_DISPINTASSTR?MAIN
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?EXT_INT_INIT?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_UART_TXSTR?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_UART_RXSTRING?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DA_GETHUMIDITY?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DA_GETTEMPERATURE?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DA_GETDEVICE1TURNONAT?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DA_GETDEVICE2TURNOFFAT?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DA_GETDEVICE2TURNONAT?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?DA_INIT?MAIN
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DISPINTASSTR?MAIN
-Program Size: data=124.1 xdata=0 code=3917
-creating hex file from ".\Objects\eeprom_lcd"...
-".\Objects\eeprom_lcd" - 0 Error(s), 15 Warning(s).
-Build Time Elapsed:  00:00:03
+*** ERROR L107: ADDRESS SPACE OVERFLOW
+    SPACE:   DATA    
+    SEGMENT: _DATA_GROUP_
+    LENGTH:  002AH
+Program Size: data=113.1 xdata=0 code=6594
+Target not created.
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>
