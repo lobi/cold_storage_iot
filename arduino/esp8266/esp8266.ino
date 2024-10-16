@@ -30,6 +30,7 @@ SoftwareSerial my_uart(13, 15);  // RX, TX
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
+#include <cmath>
 #define DHTPIN 4  // Digital pin connected to the DHT sensor
 // Feather HUZZAH ESP8266 note: use pins 3, 4, 5, 12, 13 or 14 --
 // Pin 15 can work but DHT must be disconnected during program upload.
@@ -47,7 +48,9 @@ uint32_t delayMS;
 
 /* Generaal configuration */
 constexpr uint32_t SERIAL_DEBUG_BAUD = 115200U;
-String rpc_002_topic;
+String rpc_002_topic, rpc_006_topic, rpc_008_topic,
+  rpc_010_topic, rpc_012_topic, rpc_014_topic,
+  rpc_016_topic;
 
 void init_wifi() {
   Serial.println("Connecting to AP ...");
@@ -214,6 +217,7 @@ void response_rpc(String topic, String val) {
   8051 Control Mode (auto/manual)
   - 001: setControlMode
   - 002: getControlMode
+  ...
 */
 
 // Thingsboard, the callback for when a PUBLISH message is received from the server.
@@ -244,14 +248,62 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
 
   // Check request method
   String methodName = String((const char*)doc["method"]);
+  char valZL[2]; // string for number with zero leading. This is important to save on 8051's eeprom
   Serial.print("parsed methodName: ");
   Serial.println(methodName);
 
   if (methodName.equals("setControlMode")) {
     send_to_uart_8051("001", doc["params"] ? "1" : "0");
-  } else if (methodName.equals("getControlMode")) {
+  }
+  else if (methodName.equals("getControlMode")) {
     send_to_uart_8051("002", "2");
     rpc_002_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice1OnAt")) {
+    sprintf(valZL, "%02d", (int)doc["params"]);
+    send_to_uart_8051("005", String(valZL));
+  }
+  else if (methodName.equals("getDevice1OnAt")) {
+    send_to_uart_8051("006", "2");
+    rpc_006_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice1OffAt")) {
+    sprintf(valZL, "%02d", (int)doc["params"]);
+    send_to_uart_8051("007", String(valZL));
+  }
+  else if (methodName.equals("getDevice1OffAt")) {
+    send_to_uart_8051("008", "2");
+    rpc_008_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice2OnAt")) {
+    sprintf(valZL, "%02d", (int)doc["params"]);
+    send_to_uart_8051("009", String(valZL));
+  }
+  else if (methodName.equals("getDevice2OnAt")) {
+    send_to_uart_8051("010", "2");
+    rpc_010_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice2OffAt")) {
+    sprintf(valZL, "%02d", (int)doc["params"]);
+    send_to_uart_8051("011", String(valZL));
+  }
+  else if (methodName.equals("getDevice2OffAt")) {
+    send_to_uart_8051("012", "2");
+    rpc_010_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice1State")) {
+    send_to_uart_8051("013", doc["params"] ? "1" : "0");
+  }
+  else if (methodName.equals("getDevice2OffAt")) {
+    send_to_uart_8051("014", "2");
+    rpc_010_topic = String(topic);
+  }
+  else if (methodName.equals("setDevice2State")) {
+    send_to_uart_8051("015", doc["params"] ? "1" : "0");
+  }
+  else if (methodName.equals("getDevice2State")) {
+    send_to_uart_8051("016", "2");
+    rpc_010_topic = String(topic);
   }
 }
 
@@ -295,14 +347,38 @@ void listen_on_uart_8051() {
       if (cmd == "002:") {
         //send_attribute("getControlMode", val + ".0");
         response_rpc(rpc_002_topic, val);
-        Serial.println("response rpc topic: " + rpc_002_topic);
-        Serial.print(". val: " + val);
+        Serial.print("response rpc topic: " + rpc_002_topic);
+        Serial.println(". val: " + val);
       } else if (cmd == "003:") {
         send_metrics(HUMIDITY_KEY, val);
         Serial.println("telemetry HUMIDITY_KEY was sent: " + val);
       } else if (cmd == "004:") {
         send_metrics(TEMPERATURE_KEY, val);
         Serial.println("telemetry TEMPERATURE_KEY was sent: " + val);
+      } else if (cmd == "006:") {
+        response_rpc(rpc_006_topic, val);
+        Serial.print("response rpc topic: " + rpc_006_topic);
+        Serial.println(". val: " + val);
+      } else if (cmd == "008:") {
+        response_rpc(rpc_008_topic, val);
+        Serial.print("response rpc topic: " + rpc_008_topic);
+        Serial.println(". val: " + val);
+      } else if (cmd == "010:") {
+        response_rpc(rpc_010_topic, val);
+        Serial.print("response rpc topic: " + rpc_010_topic);
+        Serial.println(". val: " + val);
+      } else if (cmd == "012:") {
+        response_rpc(rpc_012_topic, val);
+        Serial.print("response rpc topic: " + rpc_012_topic);
+        Serial.println(". val: " + val);
+      } else if (cmd == "014:") {
+        response_rpc(rpc_014_topic, val);
+        Serial.print("response rpc topic: " + rpc_014_topic);
+        Serial.println(". val: " + val);
+      } else if (cmd == "016:") {
+        response_rpc(rpc_016_topic, val);
+        Serial.print("response rpc topic: " + rpc_016_topic);
+        Serial.println(". val: " + val);
       }
 
 
@@ -384,6 +460,5 @@ void loop() {
 
   // required when using MQTT
   client.loop();
-
-  delay(2000);
+  delay(1500);
 }

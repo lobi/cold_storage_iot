@@ -27,7 +27,7 @@ unsigned char    // gb: Global
     //gb_d1off[2], // device 1 turn off at
     //db_d2on[2],  // device 2 turn on at
     //gb_d2off[2], // device 2 turn off at
-    buf2[2],     // buffer size 2
+    buf2[] = {0, 0},     // buffer size 2
     buf4[4],     // buffer size 4
     //buf5[5],     // buffer size 5
     buf16[16],   // buffer size 16, e.g.: for LCD, uart...
@@ -38,19 +38,19 @@ int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
 #include "dht11.h"
 
 
-void set_sample_data()
-{
-	// test set temperature
-	//clearLine(1);
-	//displayText("sample data: ");
-	DA_SetDevice1TurnOnAt("06");
-	DA_SetDevice1TurnOffAt("01");
-	DA_SetTemperature("05");
-	DA_SetHumidity("35");
-	//displayText("ok");
-	//Delay_ms(ms2);
-	//clearLine(1);
-}
+// void set_sample_data()
+// {
+// 	DA_SetDevice1TurnOnAt("06");
+// 	DA_SetDevice1TurnOffAt("01");
+//   DA_SetDevice1State("0");
+
+//   DA_SetDevice2TurnOnAt("15");
+//   DA_SetDevice2TurnOffAt("50");  
+//   DA_SetDevice2State("0");
+
+// 	DA_SetTemperature("05");
+// 	DA_SetHumidity("35"); 
+// }
 
 void send_metrics(void)
 {
@@ -109,7 +109,7 @@ void init(void)
 	// Data Access
 	setCursor(0, 1);
 	displayText("Data: ");
-  //EepromEraseAll();
+  EepromEraseAll();
 	DA_Init();
 	displayText("ok");
 	
@@ -117,7 +117,7 @@ void init(void)
 	clearLine(1);
 	
 	// sample data for testing
-	set_sample_data();
+	//set_sample_data();
 	
 	displayText("Mode: ");
 	wm = DA_GetWorkingMode();
@@ -176,7 +176,7 @@ void on_rx(unsigned char *prt)
     txs[4] = DA_GetWorkingMode();
     Delay_ms(4);
 
-    // send to uart for confirmation
+    // response to uart for confirmation
     UART_Init();
     UART_TxString(txs);
   }
@@ -188,13 +188,217 @@ void on_rx(unsigned char *prt)
     // generate response content
     stradd(txs, "002:", 0, 4);
     txs[4] = DA_GetWorkingMode();
-    Delay_ms(4);
+    Delay_ms(ms0);
 
     // send to uart for confirmation
     UART_Init();
-    UART_TxStr(txs, 6);
+    UART_TxString(txs);
   }
-  
+  else if (strcmp(rxcmd, "005:") == 0)
+  {
+    // 005: setDevice1OnAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice1TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    stradd(txs, "005:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOnAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "006:") == 0)
+  {
+    // 006: getDevice1OnAt
+    LED2 = 1;
+    // generate response content
+    stradd(txs, "006:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOnAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "007:") == 0)
+  {
+    // 007: setDevice1OffAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice1TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    stradd(txs, "007:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOffAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "008:") == 0)
+  {
+    // 008: getDevice1OffAt
+    LED2 = 1;
+    // generate response content
+    stradd(txs, "008:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice1TurnOffAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "009:") == 0)
+  {
+    // 009: setDevice2OnAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice2TurnOnAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    stradd(txs, "009:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOnAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "010:") == 0)
+  {
+    // 010: getDevice2OnAt
+    LED2 = 1;
+    // generate response content
+    stradd(txs, "010:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOnAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "011:") == 0)
+  {
+    // 011: setDevice2OffAt
+    LED2 = 1;
+    strrst(buf2, 2);
+    getRxVal(prt, buf2, 2);
+    DA_SetDevice2TurnOffAt(buf2);
+    Delay_ms(ms0);
+
+    // generate response content
+    stradd(txs, "011:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOffAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "012:") == 0)
+  {
+    // 012: getDevice2OffAt
+    LED2 = 1;
+    // generate response content
+    stradd(txs, "012:", 0, 4);
+    strrst(buf2, 2);
+    DA_GetDevice2TurnOffAt(buf2);
+    stradd(txs, buf2, 4, 2);
+    Delay_ms(ms0);
+
+    // response to uart
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "013:") == 0)
+  {
+    LED2 = 1;
+    // 013: setDevice1State
+    
+    // update to eeprom
+    DA_SetDevice1State(prt[4]);
+    Delay_ms(4);
+
+    // generate response content
+    stradd(txs, "013:", 0, 4);
+    txs[4] = DA_GetDevice1State();
+    Delay_ms(4);
+
+    // response to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "014:") == 0)
+  {
+    LED2 = 1;
+    // 014: getDevice1State
+
+    // generate response content
+    stradd(txs, "014:", 0, 4);
+    txs[4] = DA_GetDevice1State();
+    Delay_ms(ms0);
+
+    // send to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "015:") == 0)
+  {
+    LED2 = 1;
+    // 015: setDevice2State
+    
+    // update to eeprom
+    DA_SetDevice2State(prt[4]);
+    Delay_ms(4);
+
+    // generate response content
+    stradd(txs, "015:", 0, 4);
+    txs[4] = DA_GetDevice2State();
+    Delay_ms(4);
+
+    // response to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+  else if (strcmp(rxcmd, "016:") == 0)
+  {
+    LED2 = 1;
+    // 016: getDevice2State
+
+    // generate response content
+    stradd(txs, "016:", 0, 4);
+    txs[4] = DA_GetDevice2State();
+    Delay_ms(ms0);
+
+    // send to uart for confirmation
+    UART_Init();
+    UART_TxString(txs);
+  }
+
   Delay_ms(ms2); // to have enough time to see the LED turn on
   LED2 = 0;
   LED1 = 0;
@@ -210,10 +414,11 @@ void urx()
 
   clearLine(0);
   displayText("RX...");
+  clearLine(1);
   
-  while (icount < 7)
+  while (icount < 7) // 7: we have 7 requests from thingsboards to get device's states
   {
-    Delay_ms(ms0);
+    Delay_ms(ms1);
     strrst(buf16, 16);
     gb_i = 0;
     UART_Init();
@@ -225,6 +430,7 @@ void urx()
       icount++;
     }
   }
+
   LED1 = 0;
 }
 
@@ -246,29 +452,9 @@ void loop(void)
 
   // 2.1 Read temperature/humidity
   send_metrics();
-
-    // 3.1 Read data configuration to control devices
-	// cooling fan: On at
-	DA_GetDevice1TurnOnAt(&buf2);
-  //memset(buf16, 0, 16);
-  sprintf(buf16, "Mem-d1on=%s", buf2);
-  clearLine(0);
-  displayText(buf16);
-  // cooling fan: Off at
-  DA_GetDevice1TurnOffAt(&buf2);
-  //memset(buf16, 0, 16);
-  sprintf(buf16, "Mem-d1off=%s", buf2);
-  clearLine(1);
-  displayText(buf16);
-  Delay_ms(ms2);
+  Delay_ms(ms1);
 	
-	// Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
-	clearLine(0);
-  clearLine(1);
-  displayText("+++");
-  //Delay_ms(ms2);
-
-  // 4.1 UART-RX and proceed command if data is available
+  //UART-RX and proceed command if data is available
   urx();
 
   //gb_i = 0;
@@ -288,9 +474,9 @@ void loop(void)
   //   }
   // }
 	
-  clearLine(0);
-  clearLine(1);
-  displayText("---");
+  // clearLine(0);
+  // clearLine(1);
+  // displayText("---");
   
   Delay_ms(ms2);
 }

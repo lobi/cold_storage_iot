@@ -25,6 +25,7 @@ void DA_SetValue(unsigned char *pointer, int addr, int size)
   for (i = 0; i < size; i++)
   {
     EepromWriteByte(pointer[i], addr, 0);
+    Delay_ms(4);
     addr++;
   }
   // while (*pointer)
@@ -41,13 +42,13 @@ void DA_GetValue(unsigned char *ptr, int addr, int size)
   for (i = 0; i < size; i++)
   {
     ptr[i] = EepromReadByte(addr, 0);
+    Delay_ms(4);
     addr++;
   }
 }
 
 void DA_GetHumidity(unsigned char *pointer)
 {
-  //EepromReadNBytes(7, pointer, 2, 0);
   DA_GetValue(pointer, 7, 2);
 }
 
@@ -58,71 +59,75 @@ void DA_SetHumidity(unsigned char *pointer)
 
 void DA_GetTemperature(unsigned char *pointer)
 {
-  //EepromReadNBytes(5, pointer, 2, 0);
   DA_GetValue(pointer, 5, 2);
 }
 
 void DA_SetTemperature(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 5, 2);
-  //EepromWriteNBytes(5, pointer, 2, 0);
 }
 
-
-/*
-Start position: 4
-Example data: 017 --> 01.7 Celsius (length == 4)
-*/
 void DA_GetDevice1TurnOffAt(unsigned char *pointer)
 {
-  EepromReadNBytes(3, pointer, 2, 0);
+  DA_GetValue(pointer, 3, 2);
 }
 
-void DA_SetDevice1TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
+void DA_SetDevice1TurnOffAt(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 3, 2);
-  //EepromWriteNBytes(3, pointer, 2, 0);
 }
 
-/*
-Start position: 1
-Example data: 017 --> 01.7 Celsius (length == 3)
-*/
 void DA_GetDevice1TurnOnAt(unsigned char *pointer)
 {
-  EepromReadNBytes(1, pointer, 2, 0);
+  DA_GetValue(pointer, 1, 2);
 }
 
-void DA_SetDevice1TurnOnAt(unsigned char *pointer) // set device 1 threshold to turn on
+void DA_SetDevice1TurnOnAt(unsigned char *pointer)
 {
   DA_SetValue(pointer, 1, 2);
-  //EepromWriteNBytes(1, pointer, 2, 0);
 }
 
-
-/*
-Dehumidifier
-*/
-/*
 void DA_GetDevice2TurnOffAt(unsigned char *pointer)
 {
-  EepromReadNBytes(11, pointer, 2, 0);
+  DA_GetValue(pointer, 11, 2);
 }
-void DA_SetDevice2TurnOffAt(unsigned char *pointer) // set device 1 threshold to turn on
+
+void DA_SetDevice2TurnOffAt(unsigned char *pointer)
 {
 	DA_SetValue(pointer, 11, 2);
 }
+
 void DA_GetDevice2TurnOnAt(unsigned char *pointer)
 {
-  EepromReadNBytes(9, pointer, 2, 0);
+  DA_GetValue(pointer, 9, 2);
 }
-void DA_SetDevice2TurnOnAt(unsigned char *pointer) // set device 1 threshold to turn on
+
+void DA_SetDevice2TurnOnAt(unsigned char *pointer)
 {
   DA_SetValue(pointer, 9, 2);
-  //EepromWriteNBytes(1, pointer, 2, 0);
 }
-*/
 
+char DA_GetDevice1State()
+{
+  unsigned char state = EepromReadByte(13, 0);
+	return (state == '0' || state == '1' ? state : '2');
+}
+
+void DA_SetDevice1State(unsigned char state) // set device 1 threshold to turn on
+{
+  EepromWriteByte(state, 13, 0);
+}
+//
+char DA_GetDevice2State()
+{
+  unsigned char state = EepromReadByte(14, 0);
+	return (state == '0' || state == '1' ? state : '2');
+}
+
+void DA_SetDevice2State(unsigned char state) // set device 1 threshold to turn on
+{
+  EepromWriteByte(state, 14, 0);
+}
 
 /*working mode*/
 unsigned char DA_GetWorkingMode()
@@ -138,12 +143,23 @@ void DA_SetWorkingMode(unsigned char mode)
 
 void DA_Init()
 {
-	if (DA_GetWorkingMode() == '2') // not set before
+  // check if your eeprom is not set, then set default value
+	if (DA_GetWorkingMode() == '2')
 	{
-		// set default value: 1 -> auto
+		// set default value
 		DA_SetWorkingMode('1');
+
+    DA_SetDevice1TurnOnAt("06");
+    DA_SetDevice1TurnOffAt("01");
+    DA_SetDevice1State('0');
+
+    DA_SetDevice2TurnOnAt("15");
+    DA_SetDevice2TurnOffAt("50");  
+    DA_SetDevice2State('0');
+
+    DA_SetTemperature("05");
+    DA_SetHumidity("35"); 
 	}
-	// else: already set before. no need to set default value
 }
 
 #endif
