@@ -1,0 +1,212 @@
+volatile unsigned int tc = 0; // tc: timer counter
+volatile bit data_ready = 0; // flag
+#define BUFFER_SIZE 8  // Adjust as needed
+volatile char buffer[BUFFER_SIZE];
+volatile unsigned char buffer_index = 0;
+volatile unsigned char chr;
+
+void Timer0_Init()
+{
+  TMOD |= 0x01; // Timer 0 in Mode 1 (16-bit timer)
+  TH0 = 0xFC;   // Initial value for 1ms delay
+  TL0 = 0x66;
+  ET0 = 1; // Enable Timer 0 interrupt
+  TR0 = 1; // Start Timer 0
+}
+
+void Ext_int_Init()
+{
+  EA = 1; /* Enable global interrupt */
+  ES = 1; /* Enable serial interrupt */
+  // EX0 = 1; /* Enable Ext. interrupt0 */
+  // IT0 = 1; /* Select Ext. interrupt0 on falling edge */
+}
+
+void UART_Init()
+{
+  // TMOD = 0x20;					/* Timer 1, 8-bit auto reload mode */
+	// TH1 = 0xFD;						/* Load value for 9600 baud rate */
+	// SCON = 0x50;					/* Mode 1, reception enable, Asynchronous mode, 8-bit data and 1-stop bit */
+	// TR1 = 1;							/* Start timer 1 */
+
+  SM0 = 0;
+  SM1 = 1;
+  TMOD = 0X20;
+  TH1 = 0XFD;
+  TR1 = 1;
+  TI = 1;
+  REN = 1;
+
+  // TMOD = 0x20; // Timer 1 in Mode 2 (8-bit auto-reload)
+  // TH1 = 0xFD;  // Baud rate 9600
+  // SCON = 0x50; // 8-bit data, 1 stop bit, 1 start bit, REN enabled
+  // TR1 = 1;     // Start Timer 1
+  // EA = 1;      // Enable global interrupts
+  // ES = 1;      // Enable serial interrupt
+}
+
+void UART_TxChar(char tx_data)
+{
+	SBUF = tx_data;				/* Load char in SBUF register */
+	while (TI==0);				/* Wait until stop bit transmit */
+	TI = 0;								/* Clear TI flag */
+}
+
+char uart_rx_ch_t(int timeout)
+{
+  volatile unsigned ch;
+  //TR0 = 1;
+  tc = 0;
+  while (RI==0 && delay1(200) > 0)
+  {
+    //LED1 = ~LED1;
+    LED1 = 1;
+  }
+  //TR0 = 0;
+  if (RI == 0)
+  {
+    ch = '\0'; // null
+  }
+  else
+  {
+    ch = SBUF;
+    LED1 ^= 0x02;
+  }
+  RI=0;
+
+  return ch;
+}
+
+int uart_rx_str_t(unsigned char *ptr, int timeout)
+{
+  volatile unsigned ch;
+  int i_c = 0;
+  while (1)
+  {
+    //LED1 ^= 0x02;
+    LED1 = 0x01;
+    LED2 = 0x00;
+    ch = uart_rx_ch_t(timeout);
+    UART_TxChar(ch);
+    LED1 = 0;
+    //clearLine(1);
+    //displayChar('-');
+    //displayChar(ch);
+
+    if (ch == '\0') //  timeout
+    {
+      break;
+    }
+
+    LED2 = 0x01;
+    if ((ch == '\r') || (ch == '\n') || (ch == '/')) // read till enter key is pressed
+    {                                                // once enter key is pressed null terminate the string
+      ptr[i_c] = 0;                                   // and break the loop
+      break;
+    }
+    ptr[i_c] = ch;
+    i_c++;
+  }
+
+  return i_c;
+}
+
+
+
+char UART_RxChar(void)
+{
+	while(RI==0); // wait till the data is r eceived
+	RI=0; // clear receive Interrupt Flag for next cycle
+	return(SBUF); // return the received char
+}
+
+void UART_TxString(char *str)
+{
+	int i;
+	for(i=0;str[i]!=0;i++)/* Send each char of string till the NULL */
+	{
+		UART_TxChar(str[i]);	/* Call transmit data function */
+	}
+}
+
+void UART_TxStr(char *pointer, int length)
+{
+	int i;
+	for(i=0; i < length; i++)/* Send each char of string till the NULL */
+	{
+		UART_TxChar(pointer[i]);	/* Call transmit data function */
+	}
+}
+
+int UART_RXString(char *ptr_string)
+{
+	char ch;
+	int str_len = 0;
+	while(1)
+	{
+		ch = UART_RxChar();
+		//UART_TxChar(ch);
+		if((ch=='\r') || (ch=='\n') || (ch=='/')) //read till enter key is pressed
+		{                             //once enter key is pressed null terminate the string
+			ptr_string[str_len]=0;           //and break the loop
+			break;
+		}
+		
+		ptr_string[str_len] = ch;
+		str_len++;
+	}
+	
+	return str_len;
+}
+
+void Timer0_ISR() interrupt 1
+{
+  //LED1 = ~LED1;
+  tc++; // Increment timeout counter
+}
+
+void Serial_ISR() interrupt 4    
+{
+  //volatile unsigned ch;
+  //P1 = SBUF; /* Give received data on port 1 */
+  RI = 0;    /* Clear RI flag */
+
+  // if (RI)
+  // {
+  //   RI = 0; // Clear RI flag
+  //   chr = SBUF;
+  //   if ((chr == '\r') || (chr == '\n') || (chr == '/')) // read till enter key is pressed
+  //   {                                                // once enter key is pressed null terminate the string
+  //     data_ready = 1;                                // and break the loop
+  //   }
+  //   else if (buffer_index < BUFFER_SIZE - 1)
+  //   {
+  //     buffer[buffer_index++] = chr;
+  //   }
+  //   buffer[buffer_index] = '\0'; // Null-terminate the string
+  // }
+}
+
+bit UART_RX_T(unsigned int timeout) {
+  tc = 0;
+  data_ready = 0;
+  buffer_index = 0;
+  while (!data_ready && (tc < timeout));
+  if (data_ready)
+    printf("\ndata_ready=1");
+  else
+    printf("\ndata_ready=0");
+  return data_ready;
+}
+
+// int UART_RxAvlb(void)
+// {
+  /*
+  Check UART RX available (in buffer)
+  8051 mcu has a serial communication port and have related serial interrupt flags (TI/RI). 
+  When the last bit (stop bit) of a byte is transmitted, the TI serial interrupt flag is set,
+  and when the last bit (stop bit) of the receiving data byte is received, the RI flag gets set.
+  */
+  //return (RI == 0 ? 0 : 1) || (LED == 0 ? 0 : 1);
+//   return 0;
+// }

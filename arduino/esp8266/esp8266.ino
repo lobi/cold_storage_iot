@@ -307,6 +307,10 @@ void on_message(const char* topic, byte* payload, unsigned int length) {
     send_to_uart_8051("016", "2");
     rpc_016_topic = String(topic);
   }
+  else if (methodName.equals("getDHT11")) {
+    send_to_uart_8051("000", "2");
+    rpc_016_topic = String(topic);
+  }
 }
 
 // Listen to 8051 (UART - RX)
@@ -453,8 +457,8 @@ void loop() {
     }
   }
 
-  /* listen 8051 via UART (TX) */
-  listen_on_uart_8051();
+  /* Get telemetries by send a command (via uart) */
+  send_to_uart_8051("000", "2");
 
   /* Just for practice DHT11 on ESP8266, 
     remove this when use metrics from 8051 */
