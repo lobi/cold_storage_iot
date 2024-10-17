@@ -19,17 +19,8 @@ sbit LED2 = P1 ^ 5;
 
 
 // Control:
-unsigned char    // gb: Global
-    //gb_wm = 1,   // working mode
-    //gb_temp[2],  // temperature
-    //gb_hum[2],   // humidity
-    //gb_d1on[2],  // device 1 turn on at
-    //gb_d1off[2], // device 1 turn off at
-    //db_d2on[2],  // device 2 turn on at
-    //gb_d2off[2], // device 2 turn off at
-    buf2[] = {0, 0},     // buffer size 2
-    //buf4[4],     // buffer size 4
-    //buf5[5],     // buffer size 5
+unsigned char
+    buf2[] = {0, 0},
     buf16[16],   // buffer size 16, e.g.: for LCD, uart...
     gb_i = 0;    // multi purposes, reset before using
 int i = 0, ms0 = 4, ms1 = 100, ms2 = 200;
@@ -425,26 +416,19 @@ void urx()
   LED1 = 0;
 }
 
-/*
-Flow:
-	- 1. Refresh DHT11 sensor's data to eeprom
-	- 2. Read current temperature & humidity data from eeprom and send it to 8266 via UART-TX
-	- 3. Control devices base on eeprom data
-	- 4. UART-RX and proceed command if data is available
-*/
 void loop(void)
 {
   LED1 = 0;
   //strrst(buf16, 16);
   //char buf2[2];
-  // 1. Refresh DHT11 sensor's data to eeprom
+  // Refresh DHT11 sensor's data to eeprom
   Dht_Update();
 
-  // 2.1 Read temperature/humidity
+  // Read temperature/humidity
   send_metrics();
   Delay_ms(ms0);
 	
-  //UART-RX and proceed command if data is available
+  // UART-RX and proceed command if data is available
   urx();
   
   Delay_ms(ms1);

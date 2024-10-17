@@ -60,8 +60,8 @@ save to eeprom
 */
 void Dht_Update()
 {
-  unsigned char st[2] = {'\0', '\0'};
-  unsigned char sh[2] = {'\0', '\0'};
+  //unsigned char st[2] = {'\0', '\0'};
+  //unsigned char sh[2] = {'\0', '\0'};
   Dht_Rqst();  /* send start pulse */
   Dht_Rspn(); /* receive response */
 	
@@ -93,10 +93,10 @@ void Dht_Update()
   //   Delay_ms(4);
   //   EepromWriteByte(I_RH, 6, 0);
   // }
-  //strrst(buf2, 2);
-  //sscanf(buf2, "%02d", I_RH);
-  //DA_SetHumidity(buf2);
-  DA_SetHumidity("22");
+  //strrst(sh, 2);
+  // sscanf(sh, "%02d", I_RH);
+  // DA_SetHumidity(sh);
+  DA_SetHumidity("35"); // hard code for testing
   Delay_ms(4);
 
   // if (I_Temp > 9)
@@ -111,10 +111,10 @@ void Dht_Update()
   //   Delay_ms(4);
   //   EepromWriteByte(I_Temp, 6, 0);
   // }
-  //strrst(buf2, 2);
-  //sscanf(buf2, "%02d", I_Temp);
-  //DA_SetTemperature(buf2);
-  DA_SetTemperature("11");
+  //strrst(st, 2);
+  // sscanf(st, "%02d", I_Temp);
+  // DA_SetTemperature(st);
+  DA_SetTemperature("02"); // hard code for testing
 }
 
 
