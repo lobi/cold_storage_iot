@@ -10,8 +10,8 @@
 #include "I2C.h"
 #include "eeprom.h"
 #include "LCD8bit.h"
-sbit CTRL_T = P1 ^ 6;  // Cooling Fan
-sbit CTRL_H = P1 ^ 5;  // Humidifier Machine
+sbit CTRL_T = P1 ^ 6; // Cooling Fan
+sbit CTRL_H = P1 ^ 5; // Humidifier Machine
 sbit LED1 = P1 ^ 4;   // UART RX indicator
 sbit LED2 = P1 ^ 3;   // UART TX indicator
 sbit LED_WM = P1 ^ 2; // Working Mode (auto/manual) indicator
