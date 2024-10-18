@@ -1,4 +1,0 @@
-".\Objects\STARTUP.obj",
-".\Objects\main.obj" 
-TO ".\Objects\eeprom_lcd" 
-PRINT(".\Listings\eeprom_lcd.m51") RAMSIZE(256) 

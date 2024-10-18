@@ -1,4 +1,0 @@
-"STARTUP.obj",
-"main.obj" 
-TO "8051" 
-PRINT(".\Listings\8051.m51") RAMSIZE(256) 
