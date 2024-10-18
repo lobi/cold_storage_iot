@@ -19,7 +19,7 @@ linking...
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?EXT_INT_INIT?MAIN
 
-Program Size: data=106.1 xdata=0 code=6103
+Program Size: data=106.1 xdata=0 code=6039
 creating hex file from ".\Objects\8051"...
 ".\Objects\8051" - 0 Error(s), 6 Warning(s).
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:00

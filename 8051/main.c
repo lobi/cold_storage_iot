@@ -134,9 +134,11 @@ void on_rx(unsigned char *prt)
   strrst(rxcmd, 4);
   strc(rxcmd, prt, 4);
 
-  clearLine(1);
-  displayText(prt);
-  if (strcmp(rxcmd, "000") == 0)
+  
+  // clearLine(1);
+  // displayText(prt);
+
+  if (strcmp(rxcmd, "000:") == 0)
   {
     LED2 = 1;
     send_metrics();
@@ -409,11 +411,10 @@ void urx()
   int icount = 0;
   LED1 = 0;
   LED2 = 0;
-  
 
-  clearLine(0);
-  displayText("RX...");
-  clearLine(1);
+  // clearLine(0);
+  // displayText("RX...");
+  // clearLine(1);
   
   while (icount < 7) // 7: we have 7 requests from thingsboards to get device's states
   {

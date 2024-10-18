@@ -457,8 +457,8 @@ void loop() {
     }
   }
 
-  /* Get telemetries by send a command (via uart) */
-  send_to_uart_8051("000", "2");
+  /* listen 8051 via UART (TX) */
+  listen_on_uart_8051();
 
   /* Just for practice DHT11 on ESP8266, 
     remove this when use metrics from 8051 */

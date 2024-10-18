@@ -78,23 +78,9 @@ void Dht_Update()
     return;
   }
 
-  clearLine(0);
-  displayText("Sensor reading");
+  // clearLine(0);
+  // displayText("Sensor reading");
 
-  // if (i_rh > 9)
-  // {
-  //   eepromwritebyte(i_rh/10, 7, 0);
-  //   delay_ms(4);
-  //   eepromwritebyte(i_rh%10, 8, 0);
-  // }
-  // else
-  // {
-  //   eepromwritebyte('0', 5, 0);
-  //   delay_ms(4);
-  //   eepromwritebyte(i_rh, 6, 0);
-  // }
-  //strrst(sh, 2);
-  //sprintf(buf16, "%02d", I_RH);
   sprintf(buf16, "%02d", I_RH);
   Delay_ms(ms1);
   DA_SetHumidity(buf16);
