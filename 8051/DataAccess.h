@@ -10,13 +10,15 @@
  * Address defination: https://docs.google.com/spreadsheets/d/1maRuC_2jccFvu1Zl6Ll2AjtJf_BLCOZsvrVx8x3rNZg/
  * Address	Length	Description
  * --------------------------------------------------------------
- * 0				1				working mode (value: 1==auto, 0==manual, 2: NaN)
+ * 0				1				bit: working mode (value: 1==auto, 0==manual, 2: NaN)
  * 1				2				Celsius: Threshold turn ON the Air Conditional's Compressor
  * 3				2				Celsius: Threshold turn OFF the Air Conditional's Compressor
  * 5				2				Celsius: temperature. i.e.: 05 -> 05
  * 7				2				percent: humidity. i.e.: 16 -> 16
  * 9        2       percent: Threshold turn ON the Dehumidifer fan
  * 11       2       percent: Threshold turn OFF the Dehumidifer fan
+ * 13       1       bit: Cooling Fan Sate
+ * 14       1       bit: Humidifier Sate
  */
  
 void DA_SetValue(unsigned char *pointer, int addr, int size)

@@ -1,9 +1,7 @@
 Build target 'Target 1'
 compiling main.c...
+Controller.h(21): warning C280: 'i3': unreferenced local variable
 linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DELAY?MAIN
-
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_EEPROMWRITENBYTES?MAIN
 
@@ -14,12 +12,15 @@ linking...
     SEGMENT: ?PR?_EEPROMERASEPAGE?MAIN
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?EEPROMERASEALL?MAIN
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_DISPINTASSTR?MAIN
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?EXT_INT_INIT?MAIN
 
-Program Size: data=106.1 xdata=0 code=6039
+Program Size: data=111.1 xdata=0 code=6445
 creating hex file from ".\Objects\8051"...
-".\Objects\8051" - 0 Error(s), 6 Warning(s).
+".\Objects\8051" - 0 Error(s), 7 Warning(s).
 Build Time Elapsed:  00:00:00

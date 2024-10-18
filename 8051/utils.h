@@ -39,3 +39,18 @@ void getRxVal(unsigned char *src, unsigned char *dest, int len)
     dest[i2] = src[i + i2];
   }
 }
+
+// convert char array to integer
+int ca2i(unsigned char *ptr, int size)
+{
+  int i;
+  int r = 0;
+  for (i = 0; i < size; i++) {
+    if (ptr[i] < '0' || ptr[i] > '9') {
+        // Handle non-numeric characters
+        continue;
+    }
+    r = r * 10 + (ptr[i] - '0');
+  }
+  return r;
+}

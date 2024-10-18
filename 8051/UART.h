@@ -49,6 +49,7 @@ int UART_RXString(char *ptr_string)
 {
 	char ch;
 	int str_len = 0;
+
 	while(1)
 	{
 		ch = UART_RxChar();

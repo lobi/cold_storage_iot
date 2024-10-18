@@ -118,6 +118,9 @@ void Dht_Update()
   // sscanf(st, "%02d", I_Temp);
   // DA_SetTemperature(st);
   //DA_SetTemperature("02"); // hard code for testing
+
+  // Let refresh controller each time data sensor changed:
+  refresh_ctrl(I_RH, I_Temp);
 }
 
 
