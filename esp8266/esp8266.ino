@@ -415,7 +415,7 @@ void send_to_uart_8051(String method, String val) {
   payload.toCharArray(char_payload, payload_length);
 
   // send
-  my_uart.println(char_payload);
+  my_uart.write(char_payload);
 
   Serial.println(" done!");
   //}
