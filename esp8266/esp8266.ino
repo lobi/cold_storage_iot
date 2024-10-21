@@ -5,8 +5,8 @@
 /* Wifi configuration */
 // const char* WIFI_SSID = "FAI'S EXAM 2.4GHz";
 // const char* WIFI_PASSWORD = "Fptacademy@2023";
-const char* WIFI_SSID = "BALOI";
-const char* WIFI_PASSWORD = "0909286456";
+const char* WIFI_SSID = "Xiaomi 13T";
+const char* WIFI_PASSWORD = "88888888";
 
 /* Thingsboards configuration */
 const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
