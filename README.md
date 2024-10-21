@@ -35,7 +35,7 @@ The dashboard support to switch between working modes (auto-manual).
 
 Comunicate with ESP8266 using protocol Message Queueing Telemetry Transport (MQTT) - Remote Procedure Calls (RPC) API. Service provider: Thingsboard's message broker
 
-There is a schedule from Thingsboard that send an RCP request to update telemetry, this will keep the metrics up-to-date every 20 seconds.
+> There is a schedule from Thingsboard that send an RCP request to update telemetry, this will keep the metrics up-to-date every 20 seconds.
 
 Download dashboard json [here](./esp8266/cold_storage_management.json).
 
