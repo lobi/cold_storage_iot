@@ -2,7 +2,7 @@
 IoT Project
 
 ## Introduction
-This is an IOT project, help to control temperature & humidity in a Cold Storage via internet. Depend on the kind of storage (i.e. fruits, vaccine, food... ), the device can auto maintain temperature & humidity base on the pre-configuration.
+This is an IOT project, help to control temperature & humidity in a Cold Storage via the internet. Depend on the kind of storage (i.e. fruits, vaccine, food... ), the device can auto maintain temperature & humidity base on the pre-configuration.
 
 ## Featured
 - Control over internet (Using Thingsboard)
@@ -14,6 +14,7 @@ This is an IOT project, help to control temperature & humidity in a Cold Storage
 ![Flowchart](./docs/000.jpg)
 
 Fully control over internet
+
 Sensor's metrics will be collected by 8051 and saved on EEPROM, 8051 also control the Cooling Fan & Humidifier Machine on or off.
 
 ESP8266 will help to connect to internet (Thingsboard), transmit data between 8051 & Thingsboard
@@ -24,25 +25,28 @@ ESP8266 will help to connect to internet (Thingsboard), transmit data between 80
 ![Dashboard](./docs/003.png)
 The metrics of Temperature & humidity will keeping sync-up from DHT11 sensor to Thingsboard.
 
-The dashboard present real time Temperature/Humidity.
+The dashboard presents real time Temperature/Humidity metrics.
 
-The dashboard support to switch between working mode (auto-manual).
+The dashboard support to switch between working modes (auto-manual).
 
-Mode Auto: User can config the proper thresholds and the 8051 will auto maintain temperature/humdity by control Cooling Fan/Humidifier Machine.
+- Mode Auto: User can config the proper thresholds and the 8051 will auto maintain temperature/humdity by control Cooling Fan/Humidifier Machine.
 
-Mode Manual: Fully control Cooling Fan/Humidifier Machine on or off
+- Mode Manual: Fully control Cooling Fan/Humidifier Machine on or off
 
-Comunicate with ESP8266 using Protocol Message Queueing Telemetry Transport (MQTT) - Remote Procedure Calls (RPC) API. Service provider: Thingsboard's message broker
+Comunicate with ESP8266 using protocol Message Queueing Telemetry Transport (MQTT) - Remote Procedure Calls (RPC) API. Service provider: Thingsboard's message broker
+
+There is a schedule from Thingsboard that send an RCP request to update telemetry, this will keep the metrics up-to-date every 20 seconds.
 
 Download dashboard json [here](./esp8266/cold_storage_management.json).
 
 ## Hardwares
 ![Hardware](./docs/004.JPG)
 - 8051 - MCU
-- ESP8051 - Microcontroller
+- ESP8266 - Microcontroller
 - DHT11 - Sensor
 - LCD 16x2
 - EEPROM 24C02
+- 5 LEDs
 
 ### Hardware Protocols used
 - UART: transmit data between 8051 & ESP8266
