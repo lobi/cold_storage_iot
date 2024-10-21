@@ -50,7 +50,7 @@ Download dashboard json [here](./esp8266/cold_storage_management.json).
 
 ### Hardware Protocols used
 - UART: transmit data between 8051 & ESP8266
-- GPIO: LCD, LED indicators, control Cooling Fan & Humidifier Machine, DHT11 sensor
+- I/O: LCD, LED indicators, control Cooling Fan & Humidifier Machine, DHT11 sensor
 - I2C: integrate with EEPROM to read & write data
 
 ### Configurations
