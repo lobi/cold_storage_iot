@@ -53,11 +53,11 @@ Download dashboard json [here](./esp8266/cold_storage_management.json).
 #### ESP8266
 ```ino
 // wifi access
-const char* WIFI_SSID = "Xiaomi 13T";
-const char* WIFI_PASSWORD = "88888888";
+const char* WIFI_SSID = "[YOUR_SSID]";
+const char* WIFI_PASSWORD = "[YOUR_WIFI_PASSOWRD]";
 
 // Thingsboards configuration
-const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
+const char* THINGSBOARD_TOKEN = "[YOUR_TOKEN]";
 constexpr char THINGSBOARD_SERVER[] = "thingsboard.cloud";
 
 // UART
