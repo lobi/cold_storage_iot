@@ -1,5 +1,6 @@
 # Cold Storage Management
-Project IOT - Semester 1 - FPT Jetking
+IoT Project
+
 ## Introduction
 This is an IOT project, help to control temperature & humidity in a Cold Storage via internet. Depend on the kind of storage (i.e. fruits, vaccine, food... ), the device can auto maintain temperature & humidity base on the pre-configuration.
 
