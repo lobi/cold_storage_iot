@@ -14,8 +14,10 @@ This is an IOT project, help to control temperature & humidity in a Cold Storage
 ![Flowchart](./docs/000.jpg)
 
 Fully control over internet
-- Sensor's metrics will be collected by 8051 and saved on EEPROM, 8051 also control the Cooling Fan & Humidifier Machine on or off.
-- ESP8266 will help to connect to internet (Thingsboard), transmit data between 8051 & Thingsboard
+Sensor's metrics will be collected by 8051 and saved on EEPROM, 8051 also control the Cooling Fan & Humidifier Machine on or off.
+
+ESP8266 will help to connect to internet (Thingsboard), transmit data between 8051 & Thingsboard
+
 8051 also help to saved the configurations from Thingsboard to EEPROM
 
 ## Thingsboard's dashboard controller
@@ -29,6 +31,8 @@ The dashboard support to switch between working mode (auto-manual).
 Mode Auto: User can config the proper thresholds and the 8051 will auto maintain temperature/humdity by control Cooling Fan/Humidifier Machine.
 
 Mode Manual: Fully control Cooling Fan/Humidifier Machine on or off
+
+Comunicate with ESP8266 using Protocol Message Queueing Telemetry Transport (MQTT) - Remote Procedure Calls (RPC) API. Service provider: Thingsboard's message broker
 
 Download dashboard json [here](./esp8266/cold_storage_management.json).
 
