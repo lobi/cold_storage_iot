@@ -3,13 +3,11 @@
 #include <ESP8266WiFi.h>
 
 /* Wifi configuration */
-// const char* WIFI_SSID = "FAI'S EXAM 2.4GHz";
-// const char* WIFI_PASSWORD = "Fptacademy@2023";
-const char* WIFI_SSID = "Xiaomi 13T";
-const char* WIFI_PASSWORD = "88888888";
+const char* WIFI_SSID = "[YOUR_SSID]";
+const char* WIFI_PASSWORD = "[YOUR_PASSWORD]";
 
 /* Thingsboards configuration */
-const char* THINGSBOARD_TOKEN = "MxkQrzcH3l79OPnAN8Q9";
+const char* THINGSBOARD_TOKEN = "[YOUR_TOKEN]";
 constexpr char THINGSBOARD_SERVER[] = "thingsboard.cloud";
 constexpr uint16_t THINGSBOARD_PORT = 1883U;
 constexpr char CONNECTING_MSG[] = "Connecting to: (%s) with token (%s)\n";
