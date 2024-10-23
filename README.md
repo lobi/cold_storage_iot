@@ -38,6 +38,10 @@ Comunicate with ESP8266 using protocol Message Queueing Telemetry Transport (MQT
 
 Download dashboard json [here](./esp8266/cold_storage_management.json).
 
+
+## Circuit
+![Circuit - Proteus](./docs/001.png)
+
 ## Hardwares
 ![Hardware](./docs/004.JPG)
 - 8051 - MCU
