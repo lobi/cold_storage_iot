@@ -1,14 +1,13 @@
-# Cold Storage Management
+# Cold Storage Control System
 IoT Project
 
 ## Introduction
 This is an IOT project, help to control temperature & humidity in a Cold Storage via the internet. Depend on the kind of storage (i.e. fruits, vaccine, food... ), the device can auto maintain temperature & humidity base on the pre-configuration.
 
 ## Featured
-- Control over internet (Using Thingsboard)
-- Switch between Auto & Manual working mode
-    - Auto: Setup the temperature & humidity threshold base on the kind of storage, maintain proper temperature/humidity by auto control turn on/off Cooling Fan & Humidifier Machine
-    - Manual: Fully control Cooling Fan & Humidifier Machine
+- Control over the internet (Using Thingsboard)
+- Auto mode: Setup the temperature & humidity threshold base on the kind of storage, maintain proper temperature/humidity by auto control turn on/off Cooling Fan & Humidifier Machine
+- Manual mode: control Cooling Fan & Humidifier Machine manually
 
 ## How it work?
 ![Flowchart](./docs/000.jpg)
